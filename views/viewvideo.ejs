@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sakugalist</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+</head>
+<script>
+
+    const video =<%- JSON.stringify(video) %>;
+
+    $(function () {
+        const v = $("#video")[0];
+        v.currentTime = video.time;
+        const f = $("#fwd");
+        const t = $("#time");
+        const b = $("#bkd");
+        const w = $("#spd");
+        const bk = $("#bookmark");
+        let tf, tb;
+        let press2 = false, press3 = false;
+        $(window).keydown(function (evt) {
+            if (evt.which === 50) { // ctrl
+                press2 = true;
+            }
+            if (evt.which === 51) { // ctrl
+                press3 = true;
+            }
+        }).keyup(function (evt) {
+            if (evt.which === 50) { // ctrl
+                press2 = false;
+            }
+            if (evt.which === 51) { // ctrl
+                press3 = false;
+            }
+        });
+
+        function getamt() {
+            let re = 1;
+            if (press2) re = 2;
+            if (press3) re = 3;
+            w.text("x" + re);
+            return re;
+        }
+
+        function fwd() {
+            f.css({opacity: 1});
+            clearTimeout(tf);
+            tf = setTimeout(() => f.css({opacity: 0}), 200);
+            v.pause();
+            v.currentTime += getamt() / video.fps;
+        }
+
+        function bkd() {
+            b.css({opacity: 1});
+            clearTimeout(tb);
+            tb = setTimeout(() => b.css({opacity: 0}), 200);
+            v.pause();
+            v.currentTime -= getamt() / video.fps;
+        }
+
+        let bookmarked;
+
+        function frmch() {
+            const frm = Math.round(v.currentTime * video.fps);
+            t.text(frm);
+            bookmarked = video.bookmarks.some(x => {
+                const bfrm = Math.round(x.time * video.fps);
+                return bfrm === frm;
+            });
+            if (bookmarked) {
+                bk.text('unbookmark');
+            } else {
+                bk.text('bookmark');
+            }
+        }
+
+        v.ontimeupdate = frmch;
+        $(document).keypress(function (e) {
+            if ((e.keyCode || e.which) === 46) {
+                fwd();
+            }
+            if ((e.keyCode || e.which) === 44) {
+                bkd();
+            }
+        });
+        $(window).bind('mousewheel DOMMouseScroll', function (event) {
+            if (event.originalEvent.wheelDelta > 0 || event.originalEvent.detail < 0) {
+                fwd();
+            } else {
+                bkd();
+            }
+        });
+
+        bk.click(function () {
+            const bm = {
+                add: bookmarked ? 'no' : 'yes',
+                time: v.currentTime,
+                file: video.file,
+            };
+            $.ajax({
+                type: "POST",
+                url: '/bookmark',
+                data: JSON.stringify(bm),
+                error: function (xhr) {
+                    if (xhr.status === 200) {
+                        if (bookmarked) {
+                            video.bookmarks = video.bookmarks.filter(x => {
+                                return x.time !== bm.time;
+                            });
+                        } else {
+                            video.bookmarks.push(bm);
+                        }
+                        frmch();
+                    } else
+                        alert(xhr.status + " " + xhr.statusText);
+                },
+                dataType: 'json',
+                contentType: 'application/json',
+            });
+        });
+
+        frmch();
+    });
+
+</script>
+<body>
+<div id="infobar">
+    <span><%= video.title %></span>
+    <span id="time">xxx</span>
+    <span id="fwd">forward</span>
+    <span id="bkd">backwards</span>
+    <span id="spd">x1</span>
+</div>
+<div id="vid-row">
+    <video loop id="video" controls autobuffer preload>
+        <source type="<%= video.type %>" src="<%= video.url %>">
+        <p>Sorry, your browser does not support the &lt;video&gt; element.</p>
+    </video>
+    <div>
+        <button id="bookmark">bookmark</button>
+    </div>
+</div>
+
+<style>
+    #fwd {
+        opacity: 0;
+    }
+
+    #bkd {
+        opacity: 0;
+    }
+
+    body {
+        display: flex;
+        flex-direction: column;
+        margin: 0;
+        padding: 0;
+        max-height: 100vh;
+        max-width: 100vh;
+        overflow: hidden;
+    }
+
+    #vid-row {
+        display: flex;
+        flex-direction: row;
+    }
+
+    #video {
+        max-width: 90vw;
+        max-height: 90vh;
+    }
+</style>
+</body>
+</html>

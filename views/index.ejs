@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sakugalist</title>
+</head>
+<body>
+<ul>
+    <% for(const video of videos){ %>
+        <li>
+            <a href="/viewvideo?file=<%= video.file %>"><%= video.file %></a>
+            <ul>
+                <%for(const bookmark of video.bookmarks){%>
+                    <li>
+                        <a href="/viewvideo?file=<%= video.file %>&time=<%=bookmark.time%>"><%=bookmark.time%></a>
+                    </li>
+                <%}%>
+            </ul>
+        </li>
+    <% } %>
+</ul>
+<h1>options</h1>
+<form method="post" action="/options">
+    <input name="videofolder">
+    <input type="submit">
+</form>
+</body>
+</html>
