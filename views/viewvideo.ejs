@@ -19,6 +19,7 @@
         const bk = $("#bookmark");
         let tf, tb;
         let press2 = false, press3 = false;
+        let disablecontrols = false;
         $(window).keydown(function (evt) {
             if (evt.which === 50) { // ctrl
                 press2 = true;
@@ -61,35 +62,66 @@
 
         let bookmarked;
 
-        function frmch() {
-            const frm = Math.round(v.currentTime * video.fps);
+        const cmt = $('#comment');
+
+        function cmp(a, b) {
+            return Math.abs(a - b) < 1 / video.fps;
+        }
+
+        function frmch(keep) {
+            const frm = Math.floor(v.currentTime * video.fps);
             t.text(frm);
-            bookmarked = video.bookmarks.some(x => {
-                const bfrm = Math.round(x.time * video.fps);
-                return bfrm === frm;
-            });
+            bookmarked = video.bookmarks.find(x => cmp(x.time, v.currentTime));
             if (bookmarked) {
+                cmt.val(bookmarked.comment);
+                cmt.prop('disabled', true);
                 bk.text('unbookmark');
             } else {
+                if (keep !== 'ree')
+                    cmt.val('');
+                cmt.prop('disabled', false);
                 bk.text('bookmark');
             }
         }
 
         v.ontimeupdate = frmch;
+
         $(document).keypress(function (e) {
+            if (disablecontrols) return;
+            if ((e.keyCode || e.which) === 32) {
+
+                if (v.paused) v.play();
+                else v.pause();
+                return false;
+            }
             if ((e.keyCode || e.which) === 46) {
                 fwd();
+                return false;
             }
             if ((e.keyCode || e.which) === 44) {
                 bkd();
+                return false;
+            }
+        });
+        $(document).keyup(function(event) {
+            if (disablecontrols) return;
+            if (event.which === 32) {
+                event.preventDefault();
             }
         });
         $(window).bind('mousewheel DOMMouseScroll', function (event) {
+            if (disablecontrols) return;
             if (event.originalEvent.wheelDelta > 0 || event.originalEvent.detail < 0) {
                 fwd();
             } else {
                 bkd();
             }
+        });
+        cmt.focus(function () {
+            disablecontrols = true;
+        });
+        cmt.focusout(function () {
+            disablecontrols = false;
         });
 
         bk.click(function () {
@@ -97,6 +129,7 @@
                 add: bookmarked ? 'no' : 'yes',
                 time: v.currentTime,
                 file: video.file,
+                comment: cmt.val(),
             };
             $.ajax({
                 type: "POST",
@@ -104,14 +137,15 @@
                 data: JSON.stringify(bm),
                 error: function (xhr) {
                     if (xhr.status === 200) {
+                        console.log('re');
                         if (bookmarked) {
-                            video.bookmarks = video.bookmarks.filter(x => {
-                                return x.time !== bm.time;
-                            });
+                            video.bookmarks = video.bookmarks.filter(x => !cmp(x.time, bm.time));
+                            console.log(video.bookmarks);
+                            console.log(bm);
                         } else {
                             video.bookmarks.push(bm);
                         }
-                        frmch();
+                        frmch('ree');
                     } else
                         alert(xhr.status + " " + xhr.statusText);
                 },
@@ -139,6 +173,7 @@
     </video>
     <div>
         <button id="bookmark">bookmark</button>
+        <textarea id="comment"></textarea>
     </div>
 </div>
 
@@ -149,6 +184,15 @@
 
     #bkd {
         opacity: 0;
+    }
+
+    * {
+
+        user-select: none;
+        -moz-user-select: none;
+        -khtml-user-select: none;
+        -webkit-user-select: none;
+        -o-user-select: none;
     }
 
     body {

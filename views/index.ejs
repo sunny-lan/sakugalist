@@ -5,6 +5,7 @@
     <title>Sakugalist</title>
 </head>
 <body>
+<a href="/random">randomize</a>
 <ul>
     <% for(const video of videos){ %>
         <li>
@@ -12,7 +13,7 @@
             <ul>
                 <%for(const bookmark of video.bookmarks){%>
                     <li>
-                        <a href="/viewvideo?file=<%= video.file %>&time=<%=bookmark.time%>"><%=bookmark.time%></a>
+                        <a href="/viewvideo?file=<%= video.file %>&time=<%=bookmark.time%>"><%=bookmark.time%> - <%=bookmark.comment%></a>
                     </li>
                 <%}%>
             </ul>

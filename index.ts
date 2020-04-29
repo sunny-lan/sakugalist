@@ -47,13 +47,19 @@ async function app() {
         }
     });
 
+    app.get('/random', (req, res) => {
+        const reet = db.get('bookmarks').value();
+        const bm = reet[Math.floor(Math.random() * reet.length)];
+        res.redirect(`/viewvideo?file=${bm.file}&time=${bm.time}`);
+    });
+
 // define a route handler for the default home page
     app.get("/", (req, res) => {
         // render the index template
         const f = [];
         const re = db.get('videofolder').value();
         walkSync(re, f);
-        const reet=db.get('bookmarks');
+        const reet = db.get('bookmarks');
         res.render("index", {
             videos: f.map(x => {
                 return {
@@ -67,11 +73,14 @@ async function app() {
     app.post('/bookmark', (req, res) => {
         if (req.body.add === 'yes') {
             db.get('bookmarks')
-                .push({time: req.body.time, file: req.body.file})
+                .push({
+                    time: req.body.time, file: req.body.file,
+                    comment:req.body.comment,
+                })
                 .write();
         } else {
             db.get('bookmarks')
-                .remove({time: req.body.time, file: req.body.file})
+                .remove({time: req.body.time, file: req.body.file,})
                 .write();
         }
         res.sendStatus(200);
