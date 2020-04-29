@@ -9,17 +9,36 @@
 
     const video =<%- JSON.stringify(video) %>;
 
+    function toframe(t) {
+        return Math.floor(t * video.fps);
+    }
+
     $(function () {
-        const v = $("#video")[0];
-        v.currentTime = video.time;
-        const f = $("#fwd");
-        const t = $("#time");
-        const b = $("#bkd");
-        const w = $("#spd");
-        const bk = $("#bookmark");
-        let tf, tb;
+        const videoElm = $("#video")[0];
+        videoElm.currentTime = video.time;
+        const fwdInd = $("#fwd");
+        const timeInd = $("#time");
+        const bkdInd = $("#bkd");
+        const spdInd = $("#spd");
+        const bookmarkBtn = $("#bookmark");
+        let fwdIndTimer, bkIndTimer;
         let press2 = false, press3 = false;
-        let disablecontrols = false;
+        let disableControls = false;
+        const bookmarkList = $("#bookmarks");
+
+        function updateBookmarksList() {
+            bookmarkList.empty();
+            video.bookmarks = video.bookmarks.sort((a, b) => a.time - b.time);
+            for (const bookmark of video.bookmarks) {
+                const link = $('<a class="bookmark-link"></a>').text(toframe(bookmark.time) + '-' + bookmark.comment).click(() => videoElm.currentTime = bookmark.time);
+                const listItem = $('<li></li>');
+                listItem.append(link);
+                bookmarkList.append(listItem);
+            }
+        }
+
+        updateBookmarksList();
+
         $(window).keydown(function (evt) {
             if (evt.which === 50) { // ctrl
                 press2 = true;
@@ -36,62 +55,62 @@
             }
         });
 
-        function getamt() {
+        function getSpeed() {
             let re = 1;
             if (press2) re = 2;
             if (press3) re = 3;
-            w.text("x" + re);
+            spdInd.text("x" + re);
             return re;
         }
 
         function fwd() {
-            f.css({opacity: 1});
-            clearTimeout(tf);
-            tf = setTimeout(() => f.css({opacity: 0}), 200);
-            v.pause();
-            v.currentTime += getamt() / video.fps;
+            fwdInd.css({opacity: 1});
+            clearTimeout(fwdIndTimer);
+            fwdIndTimer = setTimeout(() => fwdInd.css({opacity: 0}), 200);
+            videoElm.pause();
+            videoElm.currentTime += getSpeed() / video.fps;
         }
 
         function bkd() {
-            b.css({opacity: 1});
-            clearTimeout(tb);
-            tb = setTimeout(() => b.css({opacity: 0}), 200);
-            v.pause();
-            v.currentTime -= getamt() / video.fps;
+            bkdInd.css({opacity: 1});
+            clearTimeout(bkIndTimer);
+            bkIndTimer = setTimeout(() => bkdInd.css({opacity: 0}), 200);
+            videoElm.pause();
+            videoElm.currentTime -= getSpeed() / video.fps;
         }
 
-        let bookmarked;
+        let currentBookmark;
 
-        const cmt = $('#comment');
+        const comment = $('#comment');
 
-        function cmp(a, b) {
+        function compareFrame(a, b) {
             return Math.abs(a - b) < 1 / video.fps;
         }
 
-        function frmch(keep) {
-            const frm = Math.floor(v.currentTime * video.fps);
-            t.text(frm);
-            bookmarked = video.bookmarks.find(x => cmp(x.time, v.currentTime));
-            if (bookmarked) {
-                cmt.val(bookmarked.comment);
-                cmt.prop('disabled', true);
-                bk.text('unbookmark');
+        function onFrameChange(keepBookmark) {
+            const currentFrame = Math.floor(videoElm.currentTime * video.fps);
+            timeInd.text(currentFrame);
+            currentBookmark = video.bookmarks.find(x => compareFrame(x.time, videoElm.currentTime));
+            if (currentBookmark) {
+                comment.val(currentBookmark.comment);
+                comment.prop('disabled', true);
+                bookmarkBtn.text('unbookmark');
             } else {
-                if (keep !== 'ree')
-                    cmt.val('');
-                cmt.prop('disabled', false);
-                bk.text('bookmark');
+                if (keepBookmark !== 'ree')
+                    comment.val('');
+                comment.prop('disabled', false);
+                bookmarkBtn.text('bookmark');
             }
         }
 
-        v.ontimeupdate = frmch;
+        videoElm.ontimeupdate = onFrameChange;
 
         $(document).keypress(function (e) {
-            if (disablecontrols) return;
+            if (disableControls) return;
             if ((e.keyCode || e.which) === 32) {
 
-                if (v.paused) v.play();
-                else v.pause();
+                if (videoElm.paused) videoElm.play();
+                else videoElm.pause();
                 return false;
             }
             if ((e.keyCode || e.which) === 46) {
@@ -103,33 +122,33 @@
                 return false;
             }
         });
-        $(document).keyup(function(event) {
-            if (disablecontrols) return;
+        $(document).keyup(function (event) {
+            if (disableControls) return;
             if (event.which === 32) {
                 event.preventDefault();
             }
         });
         $(window).bind('mousewheel DOMMouseScroll', function (event) {
-            if (disablecontrols) return;
+            if (disableControls) return;
             if (event.originalEvent.wheelDelta > 0 || event.originalEvent.detail < 0) {
                 fwd();
             } else {
                 bkd();
             }
         });
-        cmt.focus(function () {
-            disablecontrols = true;
+        comment.focus(function () {
+            disableControls = true;
         });
-        cmt.focusout(function () {
-            disablecontrols = false;
+        comment.focusout(function () {
+            disableControls = false;
         });
 
-        bk.click(function () {
+        bookmarkBtn.click(function () {
             const bm = {
-                add: bookmarked ? 'no' : 'yes',
-                time: v.currentTime,
+                add: currentBookmark ? 'no' : 'yes',
+                time: videoElm.currentTime,
                 file: video.file,
-                comment: cmt.val(),
+                comment: comment.val(),
             };
             $.ajax({
                 type: "POST",
@@ -138,14 +157,15 @@
                 error: function (xhr) {
                     if (xhr.status === 200) {
                         console.log('re');
-                        if (bookmarked) {
-                            video.bookmarks = video.bookmarks.filter(x => !cmp(x.time, bm.time));
+                        if (currentBookmark) {
+                            video.bookmarks = video.bookmarks.filter(x => !compareFrame(x.time, bm.time));
                             console.log(video.bookmarks);
                             console.log(bm);
                         } else {
                             video.bookmarks.push(bm);
                         }
-                        frmch('ree');
+                        onFrameChange('ree');
+                        updateBookmarksList();
                     } else
                         alert(xhr.status + " " + xhr.statusText);
                 },
@@ -154,7 +174,7 @@
             });
         });
 
-        frmch();
+        onFrameChange();
     });
 
 </script>
@@ -167,13 +187,15 @@
     <span id="spd">x1</span>
 </div>
 <div id="vid-row">
-    <video loop id="video" controls autobuffer preload>
+    <video disabled loop id="video" autobuffer preload>
         <source type="<%= video.type %>" src="<%= video.url %>">
         <p>Sorry, your browser does not support the &lt;video&gt; element.</p>
     </video>
     <div>
         <button id="bookmark">bookmark</button>
         <textarea id="comment"></textarea>
+        <ul id="bookmarks">
+        </ul>
     </div>
 </div>
 
@@ -186,13 +208,10 @@
         opacity: 0;
     }
 
-    * {
-
-        user-select: none;
-        -moz-user-select: none;
-        -khtml-user-select: none;
-        -webkit-user-select: none;
-        -o-user-select: none;
+    .bookmark-link {
+        text-overflow: ellipsis;
+        color:blue;
+        text-decoration: underline;
     }
 
     body {
