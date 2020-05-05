@@ -107,6 +107,10 @@
 
         $(document).keypress(function (e) {
             if (disableControls) return;
+            if((e.keyCode || e.which)===77){
+                videoElm.muted=!videoElm.muted;
+                console.log("re");
+                }
             if ((e.keyCode || e.which) === 32) {
 
                 if (videoElm.paused) videoElm.play();
@@ -191,7 +195,7 @@
         <source type="<%= video.type %>" src="<%= video.url %>">
         <p>Sorry, your browser does not support the &lt;video&gt; element.</p>
     </video>
-    <div>
+    <div id="infocol">
         <button id="bookmark">bookmark</button>
         <textarea id="comment"></textarea>
         <ul id="bookmarks">
@@ -213,14 +217,25 @@
         color:blue;
         text-decoration: underline;
     }
+    
+    #infobar{
+        width:100%;
+    }
+    
+    #infocol{
+        flex-direction:column;
+        display:flex;
+    }
 
     body {
+    width:100%;
+  box-sizing: border-box;
         display: flex;
         flex-direction: column;
         margin: 0;
         padding: 0;
         max-height: 100vh;
-        max-width: 100vh;
+        max-width: 100vw;
         overflow: hidden;
     }
 
