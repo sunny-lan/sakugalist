@@ -14,6 +14,12 @@ export enum VideoSource {
     WEB_URL
 }
 
+export enum MetadataSource{
+    SERVER=2,
+    LOCAL_STORAGE=1,
+    UNTITLED=0,
+}
+
 export interface VideoMetadata {
     animator?:string;
     show?:string;
@@ -22,12 +28,5 @@ export interface VideoMetadata {
     bookmarks:Bookmark[];//if null, assume to be no bookmarks
     fps:number;//if not present, default to 24 and log an error
     version:number;//incremented by 1 on each update
-}
-
-export interface VideoView {
-    //all measured in seconds
-    time?:number;//default to 0
-
-    loopBegin?:number; //default to 0
-    loopEnd?:number;//default to video length
+    source:MetadataSource;
 }

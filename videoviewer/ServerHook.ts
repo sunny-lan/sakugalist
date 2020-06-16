@@ -122,7 +122,12 @@ export class ServerHook {
         await Promise.all(this.metaSources.map(async (source) => {
             const res = await source.getMetadata(this.videoURL);
             if (res) {
-                if (res.version > this.viewer.metadata.version) {
+                //get latest version, tiebreak by server>localstorage
+                if (
+                    res.version > this.viewer.metadata.version ||
+                    (res.version == this.viewer.metadata.version &&
+                        res.source>this.viewer.metadata.source)
+                ) {
                     this.viewer.setMetadata(res);
                 }
             }

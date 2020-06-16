@@ -1,6 +1,7 @@
-import {Bookmark, VideoMetadata} from "../interfaces/Video";
+import {Bookmark, MetadataSource, VideoMetadata} from "../interfaces/Video";
 import {JQE} from "./util";
-import {MetadataEditor} from "./MetadataEditor";
+import {MetadataEditor, MetadataEditorValues} from "./MetadataEditor";
+import {BookmarkEditor, BookmarkUpdate} from "./BookmarkEditor";
 
 interface MetadataSaveHandler {
     (newMeta: VideoMetadata);
@@ -12,7 +13,6 @@ export class VideoViewer {
     private timeInd: JQE;
     private bkdInd: JQE;
     private spdInd: JQE;
-    private bookmarkBtn: JQE;
     private bookmarkList: JQE;
 
     private meta: VideoMetadata;
@@ -25,11 +25,10 @@ export class VideoViewer {
     private press2: boolean;
     private press3: boolean;
 
-    private comment: JQE;
-
     private currentBookmark?: Bookmark;
     private saveMetadata: MetadataSaveHandler;
     private metadataEditor: MetadataEditor;
+    private bookmarkEditor: BookmarkEditor;
 
     constructor(videoUrl: string) {
         this.videoElm = $("#video")[0] as HTMLVideoElement;
@@ -39,12 +38,22 @@ export class VideoViewer {
         this.timeInd = $("#time");
         this.bkdInd = $("#bkd");
         this.spdInd = $("#spd");
-        this.bookmarkBtn = $("#bookmark");
         this.bookmarkList = $("#bookmarks");
-        this.comment = $('#comment');
 
-        this.metadataEditor=new MetadataEditor();
-        this.metadataEditor.setSaveHandler(m=>{
+        this.bookmarkEditor = new BookmarkEditor(
+            x => this.handleBookmarkAdd(x),
+            y => this.handleBookmarkRemove(y)
+        );
+        this.bookmarkEditor.focus(() => {
+            this.disableControls = true;
+        });
+        this.bookmarkEditor.focusout(() => {
+            this.disableControls = false;
+        });
+        $('#bookmark-editor-stub').replaceWith(this.bookmarkEditor.ui);
+
+        this.metadataEditor = new MetadataEditor();
+        this.metadataEditor.setSaveHandler(m => {
             this.saveMetadata({
                 ...this.meta,
                 ...m
@@ -62,17 +71,11 @@ export class VideoViewer {
             bookmarks: [],
             tags: '',
             version: 1,
+            source: MetadataSource.UNTITLED,
         });
 
         $(window).keydown((e) => this.onKeyDown(e)).keyup((e) => this.onKeyUp(e));
         this.videoElm.ontimeupdate = () => this.onFrameChange();
-
-        this.comment.focus(() => {
-            this.disableControls = true;
-        });
-        this.comment.focusout(() => {
-            this.disableControls = false;
-        });
 
         $(window).bind('mousewheel DOMMouseScroll', (event: any) => {
             if (this.disableControls) return;
@@ -83,12 +86,28 @@ export class VideoViewer {
             }
         });
 
-        this.bookmarkBtn.click(() => this.onBookmarkBtnClick());
-
         this.saveMetadata = (m) => this.setMetadata(m); //default handler: do nothing and just update data directly
 
         this.onFrameChange();
     }
+
+    private handleBookmarkAdd(x: BookmarkUpdate): void {
+        this.saveMetadata({
+            ...this.meta,
+            bookmarks: this.meta.bookmarks.concat({
+                ...x,
+                time: this.curTime,
+            })
+        });
+    }
+
+    private handleBookmarkRemove(x: Bookmark): void {
+        this.saveMetadata({
+            ...this.meta,
+            bookmarks: this.meta.bookmarks.filter(y => y.time !== x.time)
+        });
+    }
+
 
     public get metadata() {
         return this.meta;
@@ -96,6 +115,25 @@ export class VideoViewer {
 
     public setSaveMetaHandler(handler: MetadataSaveHandler) {
         this.saveMetadata = handler;
+    }
+
+    public setMetadata(metadata: VideoMetadata): void {
+
+        if (!metadata.fps) {
+            console.error('No FPS given for video. Setting to 24 by default');
+            metadata.fps = 24;
+        }
+        this.meta = metadata;
+
+        this.metadataEditor.setMetadata(this.meta as MetadataEditorValues);
+
+        if (metadata.bookmarks)
+            this.bookmarkList.empty();
+        this.meta.bookmarks = this.meta.bookmarks.sort((a, b) => a.time - b.time);
+        for (const bookmark of this.meta.bookmarks) {
+            this.bookmarkList.append(this.createBookmarkElm(bookmark));
+        }
+        this.updateCurrentBookmarkView(true);
     }
 
     private onKeyDown(evt): void {
@@ -134,24 +172,6 @@ export class VideoViewer {
         }
     }
 
-    public setMetadata(metadata: VideoMetadata): void {
-
-        if (!metadata.fps) {
-            console.error('No FPS given for video. Setting to 24 by default');
-            metadata.fps = 24;
-        }
-        this.meta = metadata;
-
-        this.metadataEditor.setMetadata(this.meta);
-
-        if (metadata.bookmarks)
-            this.bookmarkList.empty();
-        this.meta.bookmarks = this.meta.bookmarks.sort((a, b) => a.time - b.time);
-        for (const bookmark of this.meta.bookmarks) {
-            this.bookmarkList.append(this.createBookmarkElm(bookmark));
-        }
-        this.updateCurrentBookmarkView(true);
-    }
 
     private get curFrame(): number {
         return this.toFrame(this.videoElm.currentTime);
@@ -238,43 +258,10 @@ export class VideoViewer {
 
     private updateCurrentBookmarkView(keepMissingBookmark: boolean = false): void {
         this.currentBookmark = this.findBookmarkFromTime(this.curTime);
-        //TODO separate bookmarkeditor to separate view
         if (this.currentBookmark) {
-            this.comment.val(this.currentBookmark.comment);
-            this.comment.prop('disabled', true);
-            this.bookmarkBtn.text('unbookmark');
+            this.bookmarkEditor.select(this.currentBookmark);
         } else {
-            if (!keepMissingBookmark)
-                this.comment.val('');
-            this.comment.prop('disabled', false);
-            this.bookmarkBtn.text('bookmark');
+            this.bookmarkEditor.clear(true);
         }
-    }
-
-    private onBookmarkBtnClick(): void {
-        if (this.currentBookmark) {
-            this.removeBookmark(this.currentBookmark);
-        } else {
-            this.addBookmark({
-                time: this.curTime,
-                comment: this.comment.val().toString(),
-                tags: ''//TODO
-            });
-        }
-    }
-
-    private addBookmark(bk: Bookmark): void {
-        this.saveMetadata({
-            ...this.meta,
-            bookmarks: this.meta.bookmarks.concat(bk)
-        });
-    }
-
-    private removeBookmark(bk: Bookmark): void {
-        //no two bookmarks allowed on same frame
-        this.saveMetadata({
-            ...this.meta,
-            bookmarks: this.meta.bookmarks.filter(x => x.time != bk.time)
-        });
     }
 }

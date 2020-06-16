@@ -46,26 +46,41 @@ serverhook details
 videoviewer
     decision: whether to populate or return root?
         return root seems like better idea
+
+    overall data flow:
+    metadata: editor -> callback -> videoviewer -> server/localstorage -> successcallback -> setmetadata -> update all ui
+    stepping event -> update bookmark ui
+    viewer state: control -> callback -> videoviewer prop -> notify all children
+
     recieve element to populate
+
     state
         step rate
         video rate
     subelements
         bookmark editor
-            clear active bookmark
-            set currently active bookmark
-            call setmetadata
-            add/remove bookmark
+            responsibilities: addbookmark, removebookmark, updatebookmark, show bookmark
+            ui desired behavior:
+                it has a currently selected bookmark
+                the currently selected bookmark is set whenever a link is clicked in the tablet of contents
+                when the video is stepped:
+                    if a bookmark is on the same frame, select it
+                    else clear the currently selected bookmark. also set frame number
+                if no currently selected bookmark, addbookmark is shown
+                else remove bookmark is shown
+                when removebookmark pressed, currently selected bookmark is deleted, but information is kept
+                when addbookmark pressed, bookmark is added at current time
+        table of contents
 
         metadata editor
-            clear
             loadmetadata
-            call setmetadata
+            callback when new data is saved
 
         status view
             flash forwards
             flash backwards
             call setplaybackrate
+            direct frame selector
 
 
         video player

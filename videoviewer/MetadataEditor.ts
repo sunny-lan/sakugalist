@@ -1,7 +1,6 @@
-import {VideoMetadata} from "../interfaces/Video";
 import {JQE} from "./util";
 
-interface MetadataEditorUpdate{
+export interface MetadataEditorValues{
     fps:number;
     animator:string;
     tags:string;
@@ -10,7 +9,7 @@ interface MetadataEditorUpdate{
 }
 
 interface MetadataSaveHandler {
-    (newMeta: MetadataEditorUpdate);
+    (newMeta: MetadataEditorValues);
 }
 
 const html = `
@@ -61,7 +60,7 @@ export class MetadataEditor {
         }
     }
 
-    public setMetadata(meta: VideoMetadata) {
+    public setMetadata(meta: MetadataEditorValues) {
         this.animator.val(meta.animator);
         this.tags.val(meta.tags);
         this.fps.val(meta.fps);
