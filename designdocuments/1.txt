@@ -50,14 +50,21 @@ videoviewer
         video rate
     subelements
         bookmark editor
+            clear active bookmark
+            set currently active bookmark
+            call setmetadata
+            add/remove bookmark
+
+        metadata editor
             clear
-            loadbookmark
-            getbookmark
-            enable/disable
+            loadmetadata
+            call setmetadata
+
         status view
             flash forwards
             flash backwards
-            setframe
+            call setplaybackrate
+
 
         video player
             state: currentTime
@@ -66,3 +73,6 @@ videoviewer
             set loop
             note: doesn't handle events
 
+
+server details
+    save manager: save(video)

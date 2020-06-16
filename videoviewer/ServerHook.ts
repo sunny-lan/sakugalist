@@ -97,7 +97,7 @@ export class ServerHook {
     constructor(initData?: ServerHookInitData) {
         this.metaSources = [new ServerMetadataSource(), new LocalStorageMetaSource()];
         if (!initData) initData = ServerHook.parseInitDataFromURL();
-        if(!initData.videoURL)
+        if (!initData.videoURL)
             throw new Error('Video url must be provided');
         this.videoURL = initData.videoURL;
 

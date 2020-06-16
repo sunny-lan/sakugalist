@@ -1,3 +1,7 @@
+import JQuery from 'jquery';
+
+export type JQE = JQuery<HTMLElement>;//stands for Jquery element
+
 export interface AjaxError {
     xhr:JQueryXHR;
     textStatus:string;

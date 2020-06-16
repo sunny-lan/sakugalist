@@ -1,6 +1,6 @@
 import {Video, VideoSource} from "../interfaces/Video";
 
-export function getVideoURL(video:Video):string {
+function getVideoURL(video:Video):string {
     switch (video.source) {
         case VideoSource.WEB_URL:
             return video.uri;
@@ -9,4 +9,8 @@ export function getVideoURL(video:Video):string {
         default:
             throw new Error('Unsupported video source type');
     }
+}
+
+export class VideoServer{
+
 }
