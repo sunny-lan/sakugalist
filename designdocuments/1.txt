@@ -42,3 +42,27 @@ serverhook details
         unified metadata space. only video url is passed
         - tries to access all metadata sources
         - tries to save all metadata sources
+
+videoviewer
+    recieve element to populate
+    state
+        step rate
+        video rate
+    subelements
+        bookmark editor
+            clear
+            loadbookmark
+            getbookmark
+            enable/disable
+        status view
+            flash forwards
+            flash backwards
+            setframe
+
+        video player
+            state: currentTime
+            set video rate
+            step forward and back
+            set loop
+            note: doesn't handle events
+

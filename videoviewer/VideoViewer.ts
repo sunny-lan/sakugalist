@@ -161,8 +161,9 @@ export class VideoViewer {
         return frame / this.meta.fps;
     }
 
+    //finds the nearest frame to a time
     private toFrame(t:number):number {
-        return Math.floor(t * this.meta.fps);
+        return Math.round(t * this.meta.fps);
     }
 
     private createBookmarkElm(bookmark: Bookmark): JQE {

@@ -193,8 +193,9 @@ System.register("videoviewer/VideoViewer", [], function (exports_2, context_2) {
                 VideoViewer.prototype.toTime = function (frame) {
                     return frame / this.meta.fps;
                 };
+                //finds the nearest frame to a time
                 VideoViewer.prototype.toFrame = function (t) {
-                    return Math.floor(t * this.meta.fps);
+                    return Math.round(t * this.meta.fps);
                 };
                 VideoViewer.prototype.createBookmarkElm = function (bookmark) {
                     var _this = this;
