@@ -1,0 +1,44 @@
+#fwd {
+    opacity: 0;
+}
+
+#bkd {
+    opacity: 0;
+}
+
+.bookmark-link {
+    text-overflow: ellipsis;
+    color:blue;
+    text-decoration: underline;
+}
+
+#infobar{
+    width:100%;
+}
+
+#infocol{
+    flex-direction:column;
+    display:flex;
+}
+
+body {
+    width:100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    max-height: 100vh;
+    max-width: 100vw;
+    overflow: hidden;
+}
+
+#vid-row {
+    display: flex;
+    flex-direction: row;
+}
+
+#video {
+    max-width: 90vw;
+    max-height: 90vh;
+}

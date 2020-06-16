@@ -112,10 +112,10 @@
                 console.log("re");
                 }
             if ((e.keyCode || e.which) === 32) {
-
+/*
                 if (videoElm.paused) videoElm.play();
                 else videoElm.pause();
-                return false;
+                return false;*/
             }
             if ((e.keyCode || e.which) === 46) {
                 fwd();
@@ -191,7 +191,7 @@
     <span id="spd">x1</span>
 </div>
 <div id="vid-row">
-    <video disabled loop id="video" autobuffer preload>
+    <video controls loop id="video" autobuffer preload>
         <source type="<%= video.type %>" src="<%= video.url %>">
         <p>Sorry, your browser does not support the &lt;video&gt; element.</p>
     </video>
@@ -217,11 +217,11 @@
         color:blue;
         text-decoration: underline;
     }
-    
+
     #infobar{
         width:100%;
     }
-    
+
     #infocol{
         flex-direction:column;
         display:flex;

@@ -1,0 +1,44 @@
+Design goals
+
+ - Separate VideoViewer component. This should be able to work without the server, excepting bookmark saving
+    - frame step
+    - loop
+    - jump to bookmarks
+    - should be able to view videos from a variety of sources, including web urls and local files
+ - Searchable metadata (animator, show, episode)
+ - Bookmarks to times in videos, with metadata
+ - How to view gifs?
+
+
+How to implement it
+server responsibility:
+    save video metadata.
+    allowing searching of metadata.
+    serve video from local disk.
+    serve videoviewer files
+
+
+client responsilibity:
+    videoviewer responsilibity:
+        display video and bookmarks
+        be able to seek to a time, and set loop start and end time
+        edit metadata
+    serverhook responbility:
+        supply video metadata and video URL to videoviewer.
+        supply save video metadata function to videoviewer
+
+
+Data types:
+time: stored in seconds
+video: a video URI+ a source locator (local file, web file, etc)
+video id: server assigned unique ID to a video
+video metadata: extra info about video: author, bookmarks, etc
+video url: actual url that can be displayed in <video> html5 player
+
+serverhook details
+    - recieve video url from GET params
+    - question: should localstorage and server be separate?
+    - decision:
+        unified metadata space. only video url is passed
+        - tries to access all metadata sources
+        - tries to save all metadata sources
