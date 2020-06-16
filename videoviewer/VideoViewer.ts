@@ -205,9 +205,27 @@ export class VideoViewer {
         this.updateCurrentBookmarkView(false);
     }
 
+    private findBookmarkFromTime(time:number):Bookmark|undefined{
+        let best;
+        let bestVal=Number.POSITIVE_INFINITY;
+        for(const bk of this.meta.bookmarks){
+            const t2=Math.min(bk.time, this.videoElm.duration);
+            const delta=Math.abs(t2-time);
+            if(delta<bestVal){
+                bestVal=delta;
+                best=bk;
+            }
+        }
+        // if bookmark is not within 1 frame, exit
+        if(bestVal>1/this.metadata.fps){
+            return undefined;
+        }
+        return best;
+    }
+
     private updateCurrentBookmarkView(keepMissingBookmark: boolean = false):void {
+        this.currentBookmark=this.findBookmarkFromTime(this.curTime);
         //TODO separate bookmarkeditor to separate view
-        this.currentBookmark = this.meta.bookmarks.find(x => this.toFrame(x.time)== this.curFrame);
         if (this.currentBookmark) {
             this.comment.val(this.currentBookmark.comment);
             this.comment.prop('disabled', true);
@@ -225,7 +243,7 @@ export class VideoViewer {
             this.removeBookmark(this.currentBookmark);
         }else{
             this.addBookmark({
-                time: this.curFrame,
+                time: this.curTime,
                 comment: this.comment.val().toString(),
                 tags:''//TODO
             });
