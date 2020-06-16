@@ -7,15 +7,6 @@ interface MetadataSaveHandler{
     (newMeta:VideoMetadata);
 }
 
-export interface VideoViewerState{
-    currentFrame:number;
-    //TODO implement looping
-    loopStart:number;
-    loopEnd:number;
-    //TODO implement player speed
-    playerSpeed:number;
-}
-
 export class VideoViewer {
     private videoElm: HTMLVideoElement;
     private fwdInd: JQE;
@@ -51,6 +42,11 @@ export class VideoViewer {
         this.bookmarkBtn = $("#bookmark");
         this.bookmarkList = $("#bookmarks");
         this.comment = $('#comment');
+
+        const playbackSlider=$('#playbackRate');
+        playbackSlider.change(()=>{
+            this.setPlaybackSpeed(playbackSlider.val()as number/100);
+        });
 
         this.setMetadata({
             fps:24,
@@ -174,6 +170,10 @@ export class VideoViewer {
             .text(this.toFrame(bookmark.time) + '-' + bookmark.comment)
             .click(() => this.seekTime(bookmark.time));
         return $('<li></li>').append(link);
+    }
+
+    public setPlaybackSpeed(speed:number){
+        this.videoElm.playbackRate=speed;
     }
 
     private getFrameSkip(): number {

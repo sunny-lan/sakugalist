@@ -79,6 +79,10 @@ System.register("videoviewer/VideoViewer", [], function (exports_2, context_2) {
                     this.bookmarkBtn = $("#bookmark");
                     this.bookmarkList = $("#bookmarks");
                     this.comment = $('#comment');
+                    var playbackSlider = $('#playbackRate');
+                    playbackSlider.change(function () {
+                        _this.setPlaybackSpeed(playbackSlider.val() / 100);
+                    });
                     this.setMetadata({
                         fps: 24,
                         bookmarks: [],
@@ -198,6 +202,9 @@ System.register("videoviewer/VideoViewer", [], function (exports_2, context_2) {
                         .text(this.toFrame(bookmark.time) + '-' + bookmark.comment)
                         .click(function () { return _this.seekTime(bookmark.time); });
                     return $('<li></li>').append(link);
+                };
+                VideoViewer.prototype.setPlaybackSpeed = function (speed) {
+                    this.videoElm.playbackRate = speed;
                 };
                 VideoViewer.prototype.getFrameSkip = function () {
                     var re = 1;
