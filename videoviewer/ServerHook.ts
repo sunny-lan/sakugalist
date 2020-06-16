@@ -131,6 +131,7 @@ export class ServerHook {
 
 
     private async handleMetadataSave(metadata: VideoMetadata): Promise<void> {
+        metadata.version++;
         await Promise.all(this.metaSources.map(async (source) => {
             await source.saveMetadata(this.videoURL, metadata);
         }));

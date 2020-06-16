@@ -14,26 +14,27 @@ interface MetadataSaveHandler {
 }
 
 const html = `
-Animator: <input class="metadata-animator">
-Tags: <input class="metadata-tags">
-FPS: <input class="metadata-fps">
-Show: <input class="metadata-show">
-Episode: <input class="metadata-episode">
-<button class="metadata-save">save</button>
+<div class="metadata-editor">
+    Animator: <input class="metadata-animator">
+    Tags: <input class="metadata-tags">
+    FPS: <input class="metadata-fps">
+    Show: <input class="metadata-show">
+    Episode: <input class="metadata-episode">
+    <button class="metadata-save">save</button>
+</div>
 `;
 
 export class MetadataEditor {
     private handler?: MetadataSaveHandler;
-    private ui: JQE;
+    public readonly ui: JQE;
     private animator: JQE;
     private tags: JQE;
     private fps: JQE;
     private show: JQE;
     private episode: JQE;
 
-    constructor(ui: JQE) {
-        this.ui = ui;
-        this.ui.html(html);
+    constructor() {
+        const ui=this.ui = $(html);
 
         const saveBtn: JQE = ui.find('.metadata-save');
         saveBtn.click(() => this.onSaveClicked());

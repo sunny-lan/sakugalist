@@ -44,6 +44,8 @@ serverhook details
         - tries to save all metadata sources
 
 videoviewer
+    decision: whether to populate or return root?
+        return root seems like better idea
     recieve element to populate
     state
         step rate

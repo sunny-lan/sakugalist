@@ -43,13 +43,14 @@ export class VideoViewer {
         this.bookmarkList = $("#bookmarks");
         this.comment = $('#comment');
 
-        this.metadataEditor=new MetadataEditor($('#metadata-editor'));
+        this.metadataEditor=new MetadataEditor();
         this.metadataEditor.setSaveHandler(m=>{
             this.saveMetadata({
                 ...this.meta,
                 ...m
             });
         });
+        $('#metadata-editor-stub').replaceWith(this.metadataEditor.ui);
 
         const playbackSlider = $('#playbackRate');
         playbackSlider.change(() => {
@@ -265,7 +266,6 @@ export class VideoViewer {
     private addBookmark(bk: Bookmark): void {
         this.saveMetadata({
             ...this.meta,
-            version: this.meta.version + 1,
             bookmarks: this.meta.bookmarks.concat(bk)
         });
     }
@@ -274,7 +274,6 @@ export class VideoViewer {
         //no two bookmarks allowed on same frame
         this.saveMetadata({
             ...this.meta,
-            version: this.meta.version + 1,
             bookmarks: this.meta.bookmarks.filter(x => x.time != bk.time)
         });
     }
