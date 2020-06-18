@@ -1,4 +1,4 @@
-import {Video, VideoMetadata} from "../interfaces/Video";
+import {Video, VideoMetadata} from "../shared/Video";
 import {VideoViewer} from "./VideoViewer";
 import {ajax, AjaxError} from "./util";
 import {ServerApi} from "../server/Api";
@@ -81,7 +81,7 @@ class LocalStorageMetaSource implements MetadataSource {
 
 }
 
-export class ServerHook {
+export class VideoViewerController {
     private metaSources: MetadataSource[];
 
     private viewer: VideoViewer;
@@ -96,7 +96,7 @@ export class ServerHook {
 
     constructor(initData?: ServerHookInitData) {
         this.metaSources = [new ServerMetadataSource(), new LocalStorageMetaSource()];
-        if (!initData) initData = ServerHook.parseInitDataFromURL();
+        if (!initData) initData = VideoViewerController.parseInitDataFromURL();
         if (!initData.videoURL)
             throw new Error('Video url must be provided');
         this.videoURL = initData.videoURL;
@@ -106,11 +106,12 @@ export class ServerHook {
 
     private onPageLoad() {
         this.viewer = new VideoViewer(this.videoURL);
+        $('#videoViewer-stub').replaceWith(this.viewer.ui);
         this.viewer.setSaveMetaHandler(metadata =>
             this.handleMetadataSave(metadata)
-                .catch(e => ServerHook.handlePromiseRejection(e))
+                .catch(e => VideoViewerController.handlePromiseRejection(e))
         );
-        this.loadMetadata().catch(e => ServerHook.handlePromiseRejection(e));
+        this.loadMetadata().catch(e => VideoViewerController.handlePromiseRejection(e));
     }
 
     private static handlePromiseRejection(e) {

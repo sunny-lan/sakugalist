@@ -8,32 +8,14 @@
     <script src="systemjs/named-register.js"></script>
     <script src="./bundle.js"></script>
     <script>
-        System.import('videoviewer/ServerHook')
-            .then(v=>new v.ServerHook())
+        System.import('videoviewer/VideoViewerController')
+            .then(v=>new v.VideoViewerController())
             .catch(console.error)
     </script>
     <title>Sakugalist</title>
 </head>
 
 <body>
-<div id="infobar">
-    <span id="video-title">todo</span>
-    <span id="time">xxx</span>
-    <span id="fwd">forward</span>
-    <span id="bkd">backwards</span>
-    <span id="spd">x1</span>
-    <input type="range" min="1" max="100" value="100" id="playbackRate">
-</div>
-<div id="vid-row">
-    <video controls loop id="video" autobuffer preload>
-        <p>Sorry, your browser does not support the &lt;video&gt; element.</p>
-    </video>
-    <div id="infocol">
-        <div id="bookmark-editor-stub"></div>
-        <ul id="bookmarks">
-        </ul>
-    </div>
-</div>
-<div id="metadata-editor-stub"></div>
+<div id="videoViewer-stub"></div>
 </body>
 </html>

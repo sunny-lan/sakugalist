@@ -1,22 +1,21 @@
-import {Bookmark} from "../interfaces/Video";
-import {JQE} from "./util";
+import {Bookmark} from "../shared/Video";
+import {FocusHandler, JQE} from "./util";
 
 type AddHandler=(bk:BookmarkUpdate)=>void;
 type RemoveHandler=(bk:Bookmark)=>void;
-type FocusHandler=()=>void;
 
-export interface BookmarkUpdate {
+interface BookmarkUpdate {
     tags:string;
     comment:string;
 }
 
 const html=`
-<div class="bookmark-editor">
-    <button class="bookmark-toggle">loading...</button>
+<div class="bookmarkEditor">
+    <button class="toggle">loading...</button>
     Comment
-    <textarea class="bookmark-comment"></textarea>
+    <textarea class="comment"></textarea>
     Tags
-    <input class="bookmark-tags">
+    <input class="tags">
 </div>
 `;
 
@@ -31,9 +30,9 @@ export class BookmarkEditor{
 
     constructor(onAdd:AddHandler, onRemove:RemoveHandler){
         this.ui=$(html);
-        this.tags=this.ui.find('.bookmark-tags');
-        this.comment=this.ui.find('.bookmark-comment');
-        this.toggle=this.ui.find('.bookmark-toggle');
+        this.tags=this.ui.find('.tags');
+        this.comment=this.ui.find('.comment');
+        this.toggle=this.ui.find('.toggle');
         this.toggle.click(()=>this.handleToggle());
         this.onAdd=onAdd;
         this.onRemove=onRemove;

@@ -23,9 +23,38 @@ client responsilibity:
         display video and bookmarks
         be able to seek to a time, and set loop start and end time
         edit metadata
-    serverhook responbility:
+    videoviewercontroller responbility:
         supply video metadata and video URL to videoviewer.
         supply save video metadata function to videoviewer
+    videosearch responsibility:
+        display list of available videos, giving links to them
+        have search ability
+    videosearchcontroller responsiblity:
+        supply list of available videos to videoselector, along with all metadata
+
+videosearch details
+    expected intents
+        filter bookmark by tag, in order to randomly pick one
+        filter video, in order to randomly pick one
+        find specific video
+        find specific bookmark
+    wanted behavior:
+        1. search for videos
+            - include bookmark metadata?
+            - show bookmarks in search results? filtered?
+        2. search for bookmarks
+            - include video metadata?
+            - two display methods: just show bookmark list, or show videos with matching bookmarks underneath
+        ----
+        sort by (search for): video/bookmark
+        filter bookmark results?
+        include bookmark in search?
+
+        simplify: only display in video->bookmark format
+        allow to not
+
+
+
 
 
 Data types:
@@ -43,52 +72,31 @@ serverhook details
         - tries to access all metadata sources
         - tries to save all metadata sources
 
-videoviewer
+
+videoviewer details
     decision: whether to populate or return root?
         return root seems like better idea
 
     overall data flow:
-    metadata: editor -> callback -> videoviewer -> server/localstorage -> successcallback -> setmetadata -> update all ui
-    stepping event -> update bookmark ui
-    viewer state: control -> callback -> videoviewer prop -> notify all children
-
-    recieve element to populate
-
-    state
-        step rate
-        video rate
-    subelements
-        bookmark editor
-            responsibilities: addbookmark, removebookmark, updatebookmark, show bookmark
-            ui desired behavior:
-                it has a currently selected bookmark
-                the currently selected bookmark is set whenever a link is clicked in the tablet of contents
-                when the video is stepped:
-                    if a bookmark is on the same frame, select it
-                    else clear the currently selected bookmark. also set frame number
-                if no currently selected bookmark, addbookmark is shown
-                else remove bookmark is shown
-                when removebookmark pressed, currently selected bookmark is deleted, but information is kept
-                when addbookmark pressed, bookmark is added at current time
-        table of contents
-
-        metadata editor
-            loadmetadata
-            callback when new data is saved
-
-        status view
-            flash forwards
-            flash backwards
-            call setplaybackrate
-            direct frame selector
+    metadata: editor -> callback -> videoviewer -> server/localstorage -> successcallback -> |setmetadata| -> update all ui
 
 
-        video player
-            state: currentTime
-            set video rate
-            step forward and back
-            set loop
-            note: doesn't handle events
+    viewer logic:
+
+    |seek|->set hash->onhashchange->set video.time->|time updated event|->update all ui:
+        selected bookmark -> bookmarkeditor
+        status bar
+
+    |set viewing state|->update all ui
+        -> update video
+        -> status bar
+
+    status bar:
+        change time->seek
+        needs to know a bunch of important info, such as fps, current time etc
+
+
+     possibly merge status bar with video
 
 
 server details

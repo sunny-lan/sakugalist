@@ -1,4 +1,4 @@
-import {Video, VideoMetadata} from "../interfaces/Video";
+import {Video, VideoMetadata} from "../shared/Video";
 
 export namespace ServerApi{
     //path: POST /api/update_metadata

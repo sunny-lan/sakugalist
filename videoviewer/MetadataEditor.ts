@@ -1,4 +1,4 @@
-import {JQE} from "./util";
+import {FocusHandler, JQE} from "./util";
 
 export interface MetadataEditorValues{
     fps:number;
@@ -6,6 +6,7 @@ export interface MetadataEditorValues{
     tags:string;
     show:string;
     episode:string;
+    description:string;
 }
 
 interface MetadataSaveHandler {
@@ -14,12 +15,13 @@ interface MetadataSaveHandler {
 
 const html = `
 <div class="metadata-editor">
-    Animator: <input class="metadata-animator">
-    Tags: <input class="metadata-tags">
-    FPS: <input class="metadata-fps">
-    Show: <input class="metadata-show">
-    Episode: <input class="metadata-episode">
-    <button class="metadata-save">save</button>
+    Description: <input class="description">
+    Animator: <input class="animator">
+    Tags: <input class="tags">
+    FPS: <input class="fps">
+    Show: <input class="show">
+    Episode: <input class="episode">
+    <button class="save">save</button>
 </div>
 `;
 
@@ -31,18 +33,20 @@ export class MetadataEditor {
     private fps: JQE;
     private show: JQE;
     private episode: JQE;
+    private description: JQE;
 
     constructor() {
         const ui=this.ui = $(html);
 
-        const saveBtn: JQE = ui.find('.metadata-save');
+        const saveBtn: JQE = ui.find('.save');
         saveBtn.click(() => this.onSaveClicked());
 
-        this.animator = ui.find('.metadata-animator');
-        this.tags = ui.find('.metadata-tags');
-        this.fps = ui.find('.metadata-fps');
-        this.show = ui.find('.metadata-show');
-        this.episode = ui.find('.metadata-episode');
+        this.animator = ui.find('.animator');
+        this.tags = ui.find('.tags');
+        this.fps = ui.find('.fps');
+        this.show = ui.find('.show');
+        this.episode = ui.find('.episode');
+        this.description = ui.find('.description');
 
         this.disabled(true);
     }
@@ -50,6 +54,7 @@ export class MetadataEditor {
     private onSaveClicked() {
         if(this.handler){
             this.handler({
+                description: this.description.val() as string,
                 animator: this.animator.val() as string,
                 tags: this.tags.val() as string,
                 fps: Number.parseFloat(this.fps.val() as string),
@@ -66,6 +71,7 @@ export class MetadataEditor {
         this.fps.val(meta.fps);
         this.show.val(meta.show);
         this.episode.val(meta.episode);
+        this.description.val(meta.description);
     }
 
     public setSaveHandler(handler: MetadataSaveHandler) {
@@ -74,8 +80,14 @@ export class MetadataEditor {
     }
 
     public disabled(val:boolean){
-        this.animator.prop('disabled', val);
-        this.fps.prop('disabled', val);
-        this.tags.prop('disabled', val);
+        this.ui.find('*').prop('disabled', val);
+    }
+
+    public focus(handler:FocusHandler){
+        this.ui.find('*').focus(handler);
+    }
+
+    public focusout(handler:FocusHandler){
+        this.ui.find('*').focusout(handler);
     }
 }

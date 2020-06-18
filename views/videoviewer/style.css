@@ -1,8 +1,8 @@
-#fwd {
+.fwd {
     opacity: 0;
 }
 
-#bkd {
+.bkd {
     opacity: 0;
 }
 
@@ -12,11 +12,11 @@
     text-decoration: underline;
 }
 
-#infobar{
+.infoBar{
     width:100%;
 }
 
-#infocol{
+.info-col{
     flex-direction:column;
     display:flex;
 }
@@ -33,12 +33,12 @@ body {
     overflow: hidden;
 }
 
-#vid-row {
+.vid-row {
     display: flex;
     flex-direction: row;
 }
 
-#video {
+video {
     max-width: 90vw;
     max-height: 90vh;
 }

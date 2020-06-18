@@ -1,4 +1,4 @@
-import {Video, VideoSource} from "../interfaces/Video";
+import {Video, VideoSource} from "../shared/Video";
 
 function getVideoURL(video:Video):string {
     switch (video.source) {

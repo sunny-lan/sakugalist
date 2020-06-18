@@ -1,5 +1,5 @@
 import JQuery from 'jquery';
-
+export type FocusHandler=()=>void;
 export type JQE = JQuery<HTMLElement>;//stands for Jquery element
 
 export interface AjaxError {
