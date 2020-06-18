@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <script src="fuse.js"></script>
+    <script src="jquery-3.5.1.min.js"></script>
+    <script src="systemjs/s.js" ></script>
+    <script src="systemjs/named-register.js"></script>
+    <script src="./bundle.js"></script>
+    <script>
+        System.import('videoviewer/VideoSearchController')
+            .then(v=>new v.VideoSearchController())
+            .catch(console.error)
+    </script>
+    <title>Sakugalist</title>
+</head>
+
+<body>
+<div id="videoSearch-stub"></div>
+</body>
+</html>

@@ -2,7 +2,7 @@ import {Bookmark, MetadataSource, VideoMetadata} from "../shared/Video";
 import {JQE} from "./util";
 import {MetadataEditor, MetadataEditorValues} from "./MetadataEditor";
 import {BookmarkEditor} from "./BookmarkEditor";
-import {formatTime} from "../shared/util";
+import {BookmarkLink} from "./BookmarkLink";
 
 interface MetadataSaveHandler {
     (newMeta: VideoMetadata);
@@ -238,9 +238,8 @@ export class VideoViewer {
             this.bookmarkList.empty();
         this.meta.bookmarks = this.meta.bookmarks.sort((a, b) => a.time - b.time);
         for (const bookmark of this.meta.bookmarks) {
-            const link = $(`<a class="bookmark-link" href="#${bookmark.time}"></a>`)
-                .text(`${this.toFrame(bookmark.time)} - ${bookmark.comment}`);
-            const li= $('<li></li>').append(link);
+            const link=new BookmarkLink(this.videoUrl, bookmark, this.toFrame(bookmark.time).toString()).ui;
+            const li=$('<li></li>').append(link);
             this.bookmarkList.append(li);
         }
         this.updateCurrentBookmarkView(true);

@@ -4,9 +4,12 @@
     "target": "es5",
     "sourceMap": true,
     "outFile": "../views/videoviewer/bundle.js",
-    "lib": ["es6", "dom"]
-  },
-  "exclude": [
-    "node_modules"
-  ]
+    "lib": ["es6", "dom"],
+    "baseUrl": "..",//project root
+    "paths": {
+      "*": [
+        "node_modules/*"
+      ]
+    }
+  }
 }

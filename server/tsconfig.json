@@ -5,7 +5,7 @@
     "target": "es6",
     "moduleResolution": "node",
     "sourceMap": true,
-    "baseUrl": "..",
+    "baseUrl": "..",//project root
     "paths": {
       "*": [
         "node_modules/*"

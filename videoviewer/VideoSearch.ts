@@ -9,6 +9,13 @@ const html = `
 </div>
 `;
 
+const videoSearchResultHtml=`
+<li class="videoSearchResult">
+    <a class="videoLink" href=""></a>
+    <ul class="bookmarks"></ul>
+</li>
+`;
+
 export class VideoSearch {
     public readonly ui: JQE;
     private searchBar: JQE;
@@ -23,15 +30,37 @@ export class VideoSearch {
 
         this.searcher = new FuseSearchService();
 
-        this.searchBar.change(() => this.doSearch(this.searchBar.val() as string));
+        this.searchBar.on('input', () => this.doSearch());
     }
 
-    private doSearch(query: string) {
-        this.searchResults.val('');
+    private doSearch() {
+        const query=this.searchBar.val() as string;
+        this.searchResults.empty();
+        const videos=this.searcher.searchVideos({query},true);
+
+        for(const video of videos){
+            const searchResult=$(videoSearchResultHtml);
+            const videoLink=searchResult.find('.videoLink');
+            videoLink.attr('href', `./videoviewer.html?videoUrl=${video.videoUrl}`);
+
+            const meta=video.videoMetadata;
+            videoLink.text(meta.description || '');
+            if(meta.animator)
+                videoLink.append(` | animator:${meta.animator}`);
+            if(meta.show){
+                videoLink.append(` | source:${meta.show}`);
+                if(meta.episode){
+                    videoLink.append(` episode:${meta.episode}`)
+                }
+            }
+
+            this.searchResults.append(searchResult);
+        }
     }
 
     public setVideoList(list: VideoList) {
         this.searcher.setVideos(list);
+        this.doSearch();
     }
 
 

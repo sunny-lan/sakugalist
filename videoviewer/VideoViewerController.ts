@@ -5,7 +5,7 @@ import {ServerApi} from "../server/Api";
 
 
 interface ServerHookInitData {
-    videoURL: string;//expected to be unique per video
+    videoUrl: string;//expected to be unique per video
 }
 
 interface MetadataSource {
@@ -85,21 +85,21 @@ export class VideoViewerController {
     private metaSources: MetadataSource[];
 
     private viewer: VideoViewer;
-    private videoURL: string;
+    private readonly videoURL: string;
 
     public static parseInitDataFromURL(): ServerHookInitData {
         const urlParams = new URLSearchParams(window.location.search);
         return {
-            videoURL: urlParams.get("videoURL"),
+            videoUrl: urlParams.get("videoUrl"),
         };
     }
 
     constructor(initData?: ServerHookInitData) {
         this.metaSources = [new ServerMetadataSource(), new LocalStorageMetaSource()];
         if (!initData) initData = VideoViewerController.parseInitDataFromURL();
-        if (!initData.videoURL)
+        if (!initData.videoUrl)
             throw new Error('Video url must be provided');
-        this.videoURL = initData.videoURL;
+        this.videoURL = initData.videoUrl;
 
         $(() => this.onPageLoad());
     }
