@@ -2,12 +2,18 @@ import {
     BookmarkSearchResult,
     SearchQuery,
     VideoSearchService,
-    VideoList,
     VideoSearchResult
 } from "./VideoSearchService";
 
 // import Fuse from "fuse.js";
-import {Bookmark, BookmarkSearchableKeys, VideoMetadata, VideoMetadataSearchableKeys, VideoSource} from "./Video";
+import {
+    Bookmark,
+    BookmarkSearchableKeys,
+    VideoList,
+    VideoMetadata,
+    VideoMetadataSearchableKeys,
+    VideoSource
+} from "./Video";
 
 interface BookmarkSearchable {
     bookmark: Bookmark;
@@ -34,12 +40,15 @@ const videoKeys = [
 ];
 
 export class FuseSearchService implements VideoSearchService {
+    //TODO
+    // @ts-ignore
     private videoSearch: Fuse<VideoSearchable, {}>;
+    //TODO
+    // @ts-ignore
     private bookmarkSearch: Fuse<BookmarkSearchable, {}>;
     private bookmarkList: BookmarkSearchable[];
     private videoList: VideoSearchable[];
 
-    //TODO in
     searchBookmarks(query: SearchQuery): BookmarkSearchResult[] {
         //if empty return all results
         if(query.query.trim().length===0){
@@ -93,7 +102,11 @@ export class FuseSearchService implements VideoSearchService {
             }
         }
 
+        //TODO
+        // @ts-ignore
         this.videoSearch = new Fuse<VideoSearchable, {}>(this.videoList, {keys: videoKeys});
+        //TODO
+        // @ts-ignore
         this.bookmarkSearch = new Fuse(this.bookmarkList, {keys: bookmarkKeys});
     }
 

@@ -1,4 +1,4 @@
-import {Bookmark, MetadataSource, VideoMetadata} from "../shared/Video";
+import {Bookmark, MetadataSource, VERSION_DEPRECATED, Video, VideoMetadata} from "../shared/Video";
 import {JQE} from "./util";
 import {MetadataEditor, MetadataEditorValues} from "./MetadataEditor";
 import {BookmarkEditor} from "./BookmarkEditor";
@@ -56,7 +56,7 @@ export class VideoViewer {
     private press3: boolean;
 
     private currentBookmark?: Bookmark;
-    private saveMetadata: MetadataSaveHandler;
+    private saveMetadataExternal: MetadataSaveHandler;
     private metadataEditor: MetadataEditor;
     private bookmarkEditor: BookmarkEditor;
 
@@ -152,10 +152,11 @@ export class VideoViewer {
             fps: 24,
             bookmarks: [],
             tags: '',
-            version: 1,
+            version: VERSION_DEPRECATED,
             source: MetadataSource.UNTITLED,
+            dateModified:-1,
         });
-        this.saveMetadata = (m) => this.setMetadata(m); //default handler: do nothing and just update data directly
+        this.saveMetadataExternal = (m) => this.setMetadata(m); //default handler: do nothing and just update data directly
 
         //
         //initialize
@@ -221,8 +222,15 @@ export class VideoViewer {
         return this.meta;
     }
 
+    private saveMetadata(metadata:VideoMetadata):void{
+        this.saveMetadataExternal({
+            ...this.metadata,
+            dateModified:new Date().getTime()
+        });
+    }
+
     public setSaveMetaHandler(handler: MetadataSaveHandler) {
-        this.saveMetadata = handler;
+        this.saveMetadataExternal = handler;
     }
 
     public setMetadata(metadata: VideoMetadata): void {

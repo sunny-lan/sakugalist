@@ -30,13 +30,16 @@
     flex-grow: 0;
 }
 
+
 /*BookmarkEditor*/
+
 .bookmarkEditor{
     min-width: 160px;
     flex-grow: 0;
     flex-direction:column;
     display:flex;
 }
+
 
 /*BookmarkLink*/
 

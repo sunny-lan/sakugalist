@@ -1,11 +1,4 @@
-import {Bookmark, VideoMetadata} from "./Video";
-
-export type VideoList = VideoListEntry[];
-
-type VideoListEntry={
-    videoUrl:string;
-    videoMetadata:VideoMetadata;
-};
+import {Bookmark, VideoList, VideoMetadata} from "./Video";
 
 export interface SearchQuery {
     query: string;

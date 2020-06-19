@@ -7,6 +7,13 @@ export interface Bookmark {
 
 export const BookmarkSearchableKeys: string[] = ['tags', 'comment'];
 
+export type VideoList = VideoListEntry[];
+
+type VideoListEntry={
+    videoUrl:string;
+    videoMetadata:VideoMetadata;
+};
+
 export interface Video {
     source: VideoSource;
     uri: string;
@@ -23,6 +30,8 @@ export enum MetadataSource {
     UNTITLED = 0,
 }
 
+export const VERSION_DEPRECATED=-1;
+
 export interface VideoMetadata {
     description?: string;
     animator?: string;
@@ -31,7 +40,8 @@ export interface VideoMetadata {
     tags: string;
     bookmarks: Bookmark[];//if null, assume to be no bookmarks
     fps: number;//if not present, default to 24 and log an error
-    version: number;//incremented by 1 on each update
+    version: number;//[DEPRECATED] incremented by 1 on each update
+    dateModified:number;//time this object was saved. stored in milliseconds since 1970
     source: MetadataSource;
 }
 

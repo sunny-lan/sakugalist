@@ -1,5 +1,5 @@
-import {VideoList} from "../shared/VideoSearchService";
 import {VideoSearch} from "./VideoSearch";
+import {VideoList} from "../shared/Video";
 
 export class VideoSearchController {
     constructor(){

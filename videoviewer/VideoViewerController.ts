@@ -1,4 +1,4 @@
-import {Video, VideoMetadata} from "../shared/Video";
+import {VERSION_DEPRECATED, Video, VideoMetadata} from "../shared/Video";
 import {VideoViewer} from "./VideoViewer";
 import {ajax, AjaxError} from "./util";
 import {ServerApi} from "../server/Api";
@@ -124,10 +124,9 @@ export class VideoViewerController {
             const res = await source.getMetadata(this.videoURL);
             if (res) {
                 //get latest version, tiebreak by server>localstorage
+                const dateMod=res.dateModified||0; //for older versions still using version number
                 if (
-                    res.version > this.viewer.metadata.version ||
-                    (res.version == this.viewer.metadata.version &&
-                        res.source>this.viewer.metadata.source)
+                   dateMod>this.viewer.metadata.dateModified
                 ) {
                     this.viewer.setMetadata(res);
                 }
@@ -137,7 +136,6 @@ export class VideoViewerController {
 
 
     private async handleMetadataSave(metadata: VideoMetadata): Promise<void> {
-        metadata.version++;
         await Promise.all(this.metaSources.map(async (source) => {
             await source.saveMetadata(this.videoURL, metadata);
         }));

@@ -1,4 +1,21 @@
 ### Proposing new model:
+main working copy stored on localstorage. sync with server.
+
+current issue:
+CORS makes it impossible for local file to work with server?
 
 client side viewer always accesses localstorage by default
 
+videoviewer<->local storage handler<->serverhook<->server
+
+videoviewer: still same interface as before:
+ - setmetadata(new metadata)
+ - onmetadatachange (callback)
+
+interface of localstorage
+ - getvideolist()
+ - getmetadata(url)
+ - savemetadata(url, metadata)
+
+interface of server
+ - savevideolist()
