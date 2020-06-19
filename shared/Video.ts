@@ -2,6 +2,7 @@ export interface Bookmark {
     time: number;
     tags: string;
     comment: string;
+    animator?:string;
 }
 
 export const BookmarkSearchableKeys: string[] = ['tags', 'comment'];

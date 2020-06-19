@@ -17,17 +17,17 @@ const html = `
 <div class="videoViewer">
     <div class="infoBar">
         <span class="title">todo</span>
-        <span class="time">xxx</span>
         <span class="fwd">forward</span>
         <span class="bkd">backwards</span>
         <span class="spd">x1</span>
         <input type="range" min="1" max="100" value="100" class="playbackRate">
+        <span class="time">xxx</span>
     </div>
-    <div class="vid-row">
+    <div class="vidRow">
         <video controls loop autobuffer preload>
             <p>Sorry, your browser does not support the &lt;video&gt; element.</p>
         </video>
-        <div class="info-col">
+        <div class="infoCol">
             <div class="bookmarkEditor-stub"></div>
             <ul class="bookmarkList">
             </ul>
@@ -66,6 +66,7 @@ export class VideoViewer {
 
     constructor(videoUrl: string) {
         this.videoUrl=videoUrl;
+        document.title = `Sakugalist - ${videoUrl}`;
 
         this.ui = $(html);
 

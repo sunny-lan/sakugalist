@@ -18,7 +18,7 @@ export class BookmarkLink {
         const time = overrideTime || formatTime(bookmark.time);
         //TODO make separate navigation system
         const vidLink=`./videoviewer.html?videoUrl=${videoUrl}#${bookmark.time}`;
-        this.ui = $(`<a class="bookmark-link" href="${vidLink}"></a>`)
+        this.ui = $(`<a class="bookmarkLink" href="${vidLink}"></a>`)
             .text(`${time} - ${bookmark.comment}`);
     }
 }

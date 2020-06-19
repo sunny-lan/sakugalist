@@ -1,0 +1,4 @@
+### Proposing new model:
+
+client side viewer always accesses localstorage by default
+

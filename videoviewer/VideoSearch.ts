@@ -4,8 +4,11 @@ import {FuseSearchService} from "../shared/FuseSearchService";
 
 const html = `
 <div class="videoSearch">
-    <input class="searchBar">
+    Search: <input class="searchBar">
     <ul class="searchResults"></ul>
+    Directly open url/file:
+    <input class="directFile">
+    <button class="directFileOpen">Open</button>
 </div>
 `;
 
@@ -31,6 +34,11 @@ export class VideoSearch {
         this.searcher = new FuseSearchService();
 
         this.searchBar.on('input', () => this.doSearch());
+
+        const directFile=this.ui.find('.directFile');
+        this.ui.find('.directFileOpen').click(()=>{
+            window.location.href=`./videoviewer.html?videoUrl=${encodeURIComponent(directFile.val() as string)}`;
+        });
     }
 
     private doSearch() {
