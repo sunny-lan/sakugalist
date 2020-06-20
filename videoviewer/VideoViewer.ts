@@ -349,7 +349,8 @@ export class VideoViewer {
     }
 
     private seekTime(time: number): void {
-        window.location.hash = time.toString();
+        history.replaceState(null, null, '#' + time);
+        this.videoElm.currentTime=time;
     }
 
     private seekFrame(frame:number):void{
