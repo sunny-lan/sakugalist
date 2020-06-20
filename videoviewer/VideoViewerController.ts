@@ -120,13 +120,14 @@ export class VideoViewerController {
     }
 
     private async loadMetadata() {
+        let latestModified=-1;
         await Promise.all(this.metaSources.map(async (source) => {
             const res = await source.getMetadata(this.videoURL);
             if (res) {
-                //get latest version, tiebreak by server>localstorage
+                //get latest version
                 const dateMod=res.dateModified||0; //for older versions still using version number
                 if (
-                   dateMod>this.viewer.metadata.dateModified
+                   dateMod>latestModified
                 ) {
                     this.viewer.setMetadata(res);
                 }

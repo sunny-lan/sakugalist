@@ -7,7 +7,7 @@ export class LocalStorage implements StorageProvider{
         for(const [videoUrl, meta] of Object.entries(localStorage)){
             videoList.push({
                 videoUrl,
-                videoMetadata:await this.getMetadata(videoUrl)
+                videoMetadata:JSON.parse(meta)
             });
         }
         return videoList;

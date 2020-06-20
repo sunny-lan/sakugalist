@@ -1,4 +1,4 @@
-import {Bookmark, MetadataSource, VERSION_DEPRECATED, Video, VideoMetadata} from "../shared/Video";
+import {Bookmark, MetadataSource, VERSION_DEPRECATED, VideoMetadata} from "../shared/Video";
 import {JQE} from "./util";
 import {MetadataEditor, MetadataEditorValues} from "./MetadataEditor";
 import {BookmarkEditor} from "./BookmarkEditor";
@@ -11,6 +11,7 @@ interface MetadataSaveHandler {
 interface BookmarkUpdate {
     tags:string;
     comment:string;
+    animator?:string;
 }
 
 const html = `
@@ -24,7 +25,7 @@ const html = `
         <span class="time">xxx</span>
     </div>
     <div class="vidRow">
-        <video controls loop autobuffer preload>
+        <video controls preload>
             <p>Sorry, your browser does not support the &lt;video&gt; element.</p>
         </video>
         <div class="infoCol">
@@ -148,7 +149,7 @@ export class VideoViewer {
         //metadata
         //
 
-        this.setMetadata({
+        this.setMetadataInternal({
             fps: 24,
             bookmarks: [],
             tags: '',
@@ -199,18 +200,18 @@ export class VideoViewer {
             }
         }
         // if bookmark is not within 1 frame, exit
-        if (bestVal > 1 / this.metadata.fps) {
+        if (bestVal > 1 / this.meta.fps) {
             return undefined;
         }
         return best;
     }
 
-    private updateCurrentBookmarkView(keepMissingBookmark: boolean = false): void {
+    private updateCurrentBookmarkView(keepOldData: boolean): void {
         this.currentBookmark = this.findBookmarkFromTime(this.curTime);
         if (this.currentBookmark) {
             this.bookmarkEditor.select(this.currentBookmark);
         } else {
-            this.bookmarkEditor.clear(true);
+            this.bookmarkEditor.clear(keepOldData);
         }
     }
 
@@ -218,13 +219,9 @@ export class VideoViewer {
     // metadata logic
     //
 
-    public get metadata() {
-        return this.meta;
-    }
-
     private saveMetadata(metadata:VideoMetadata):void{
         this.saveMetadataExternal({
-            ...this.metadata,
+            ...metadata,
             dateModified:new Date().getTime()
         });
     }
@@ -233,7 +230,7 @@ export class VideoViewer {
         this.saveMetadataExternal = handler;
     }
 
-    public setMetadata(metadata: VideoMetadata): void {
+    private setMetadataInternal(metadata:VideoMetadata){
 
         if (!metadata.fps) {
             console.error('No FPS given for video. Setting to 24 by default');
@@ -252,6 +249,19 @@ export class VideoViewer {
             this.bookmarkList.append(li);
         }
         this.updateCurrentBookmarkView(true);
+    }
+
+    public setMetadata(metadata: VideoMetadata): void {
+        //or 0 is for backwards compatibility
+        if((metadata.dateModified || 0)<this.meta.dateModified){
+            const res=confirm(
+                `Trying to load older version of metadata from ${new Date(metadata.dateModified)}\n`+
+                `Is this ok?`
+            );
+            if(!res)return;
+        }
+
+        this.setMetadataInternal(metadata);
     }
 
     //
@@ -352,7 +362,7 @@ export class VideoViewer {
 
     private onFrameChange(): void {
         this.timeInd.text(this.curFrame);
-        this.updateCurrentBookmarkView(false);
+        this.updateCurrentBookmarkView(true);
     }
 
     public setPlaybackSpeed(speed: number) {
