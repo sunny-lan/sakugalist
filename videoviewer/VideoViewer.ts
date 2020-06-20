@@ -295,7 +295,7 @@ export class VideoViewer {
         clearTimeout(this.fwdIndTimer);
         this.fwdIndTimer = setTimeout(() => this.fwdInd.css({opacity: 0}), 200);
         this.videoElm.pause();
-        this.curFrame ++;
+        this.seekFrame(this.curFrame+1);
     }
 
     private stepBackward(): void {
@@ -303,7 +303,7 @@ export class VideoViewer {
         clearTimeout(this.bkIndTimer);
         this.bkIndTimer = setTimeout(() => this.bkdInd.css({opacity: 0}), 200);
         this.videoElm.pause();
-        this.curFrame--;
+        this.seekFrame(this.curFrame-1);
     }
 
     private toTime(frame: number): number {
@@ -317,10 +317,6 @@ export class VideoViewer {
 
     private get curFrame(): number {
         return this.toFrame(this.videoElm.currentTime);
-    }
-
-    private set curFrame(frame: number) {
-        this.videoElm.currentTime = this.toTime(frame);
     }
 
     private get curTime(): number {
@@ -354,6 +350,10 @@ export class VideoViewer {
 
     private seekTime(time: number): void {
         window.location.hash = time.toString();
+    }
+
+    private seekFrame(frame:number):void{
+        this.seekTime(this.toTime(frame));
     }
 
     private onFrameChange(): void {
