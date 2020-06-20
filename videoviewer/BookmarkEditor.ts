@@ -1,5 +1,6 @@
 import {Bookmark} from "../shared/Video";
 import {FocusHandler, JQE} from "./util";
+import {formatTime} from "../shared/util";
 
 type AddHandler = (bk: BookmarkUpdate) => void;
 type RemoveHandler = (bk: Bookmark) => void;
@@ -73,7 +74,7 @@ export class BookmarkEditor {
 
 
         this.ui.find('.textInput').prop('disabled', true);
-        this.toggle.text('unbookmark');
+        this.toggle.text(`unbookmark`);
     }
 
     public clearText(): void {

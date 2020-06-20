@@ -9,20 +9,32 @@ interface MetadataSaveHandler {
 }
 
 interface BookmarkUpdate {
-    tags:string;
-    comment:string;
-    animator?:string;
+    tags: string;
+    comment: string;
+    animator?: string;
 }
 
 const html = `
 <div class="videoViewer">
     <div class="infoBar">
-        <span class="title">todo</span>
+        <span class="title"></span>
+        |
+        Play speed: <span class="spd">1</span>
+        <input type="range" min="1" max="100" value="100" class="playbackRate">
+        |
+        Fps:
+        <select class="fpsSelect">
+            <option value="8">8 (threes)</option>
+            <option value="12">12 (twos)</option>
+            <option value="24" selected>24 (ones)</option>
+            <option value="30">30</option>
+        </select>
+        |
+        Frame:
+        <span class="time">xxx</span>
+        |
         <span class="fwd">forward</span>
         <span class="bkd">backwards</span>
-        <span class="spd">x1</span>
-        <input type="range" min="1" max="100" value="100" class="playbackRate">
-        <span class="time">xxx</span>
     </div>
     <div class="vidRow">
         <video controls preload>
@@ -52,10 +64,6 @@ export class VideoViewer {
     private fwdIndTimer;
     private bkIndTimer;
 
-    private disableControls: boolean = false;
-    private press2: boolean;
-    private press3: boolean;
-
     private currentBookmark?: Bookmark;
     private saveMetadataExternal: MetadataSaveHandler;
     private metadataEditor: MetadataEditor;
@@ -63,17 +71,21 @@ export class VideoViewer {
 
     public readonly ui: JQE;
 
-    private videoUrl:string;
+    private videoUrl: string;
+
+    private fpsSelect:JQE;
+    private title: JQE;
 
     constructor(videoUrl: string) {
-        this.videoUrl=videoUrl;
-        document.title = `Sakugalist - ${videoUrl}`;
-
+        this.videoUrl = videoUrl;
         this.ui = $(html);
 
         this.videoElm = this.ui.find('video')[0] as HTMLVideoElement;
         this.videoElm.setAttribute('src', videoUrl);
 
+        document.title = `Sakugalist - ${videoUrl}`;
+        this.title=this.ui.find('.title');
+        this.title.text(videoUrl);
 
         //
         // control/status bar
@@ -81,13 +93,17 @@ export class VideoViewer {
 
         const playbackSlider = this.ui.find('.playbackRate');
         playbackSlider.change(() => {
-            this.setPlaybackSpeed(playbackSlider.val() as number / 100);
+            const spd=playbackSlider.val() as number / 100;
+            this.setPlaybackSpeed(spd);
         });
 
         this.fwdInd = this.ui.find(".fwd");
         this.timeInd = this.ui.find(".time");
         this.bkdInd = this.ui.find(".bkd");
         this.spdInd = this.ui.find(".spd");
+
+        this.fpsSelect=this.ui.find('.fpsSelect');
+        this.fpsSelect.on('change', ()=>this.onFpsSelected());
 
         //
         //bookmark list
@@ -103,12 +119,6 @@ export class VideoViewer {
             x => this.addBookmark(x),
             x => this.removeBookmark(x)
         );
-        this.bookmarkEditor.focus(() => {
-            this.disableControls = true;
-        });
-        this.bookmarkEditor.focusout(() => {
-            this.disableControls = false;
-        });
         this.ui.find('.bookmarkEditor-stub').replaceWith(this.bookmarkEditor.ui);
 
         //
@@ -130,7 +140,6 @@ export class VideoViewer {
 
         $(window).keydown((e) => this.onKeyDown(e)).keyup((e) => this.onKeyUp(e));
         $(this.videoElm).bind('mousewheel DOMMouseScroll', (event: any) => {
-            if (this.disableControls) return;
             if (event.originalEvent.wheelDelta > 0 || event.originalEvent.detail < 0) {
                 this.stepForward();
             } else {
@@ -143,26 +152,25 @@ export class VideoViewer {
         //
 
         this.videoElm.ontimeupdate = () => this.onFrameChange();
-        window.onhashchange = ()=>this.onHashChange();
+        window.onhashchange = () => this.onHashChange();
 
         //
         //metadata
         //
 
         this.setMetadataInternal({
-            fps: 24,
             bookmarks: [],
             tags: '',
             version: VERSION_DEPRECATED,
             source: MetadataSource.UNTITLED,
-            dateModified:-1,
+            dateModified: -1,
         });
         this.saveMetadataExternal = (m) => this.setMetadata(m); //default handler: do nothing and just update data directly
 
         //
         //initialize
         //
-
+        this.onFpsSelected();
         this.onHashChange();
         this.onFrameChange();
     }
@@ -219,10 +227,10 @@ export class VideoViewer {
     // metadata logic
     //
 
-    private saveMetadata(metadata:VideoMetadata):void{
+    private saveMetadata(metadata: VideoMetadata): void {
         this.saveMetadataExternal({
             ...metadata,
-            dateModified:new Date().getTime()
+            dateModified: new Date().getTime()
         });
     }
 
@@ -230,78 +238,51 @@ export class VideoViewer {
         this.saveMetadataExternal = handler;
     }
 
-    private setMetadataInternal(metadata:VideoMetadata){
-
-        if (!metadata.fps) {
-            console.error('No FPS given for video. Setting to 24 by default');
-            metadata.fps = 24;
-        }
+    private setMetadataInternal(metadata: VideoMetadata) {
         this.meta = metadata;
+
+        if(metadata.description){
+            this.title.text(metadata.description);
+        }
 
         this.metadataEditor.setMetadata(this.meta as MetadataEditorValues);
 
-        if (metadata.bookmarks)
-            this.bookmarkList.empty();
-        this.meta.bookmarks = this.meta.bookmarks.sort((a, b) => a.time - b.time);
-        for (const bookmark of this.meta.bookmarks) {
-            const link=new BookmarkLink(this.videoUrl, bookmark, this.toFrame(bookmark.time).toString()).ui;
-            const li=$('<li></li>').append(link);
+        this.updateBookmarkList();
+        this.updateCurrentBookmarkView(true);
+    }
+
+    private updateBookmarkList(){
+        this.bookmarkList.empty();
+        for (const bookmark of this.meta.bookmarks.sort((a, b) => a.time - b.time)) {
+            const link = new BookmarkLink(this.videoUrl, bookmark, this.toFrame(bookmark.time).toString()).ui;
+            const li = $('<li></li>').append(link);
             this.bookmarkList.append(li);
         }
-        this.updateCurrentBookmarkView(true);
     }
 
     public setMetadata(metadata: VideoMetadata): void {
         //or 0 is for backwards compatibility
-        if((metadata.dateModified || 0)<this.meta.dateModified){
-            const res=confirm(
-                `Trying to load older version of metadata from ${new Date(metadata.dateModified)}\n`+
+        if ((metadata.dateModified || 0) < this.meta.dateModified) {
+            const res = confirm(
+                `Trying to load older version of metadata from ${new Date(metadata.dateModified)}\n` +
                 `Is this ok?`
             );
-            if(!res)return;
+            if (!res) return;
         }
 
         this.setMetadataInternal(metadata);
     }
 
     //
-    // event handling
+    // TODO keyboard shortcuts
     //
 
     private onKeyDown(evt): void {
-        if (evt.which === 50) { // ctrl
-            this.press2 = true;
-        }
-        if (evt.which === 51) { // ctrl
-            this.press3 = true;
-        }
+
     }
 
     private onKeyUp(e): void {
-        if (e.which === 50) { // ctrl
-            this.press2 = false;
-        }
-        if (e.which === 51) { // ctrl
-            this.press3 = false;
-        }
 
-        if (this.disableControls) return;
-        if ((e.keyCode || e.which) === 77) {
-            this.videoElm.muted = !this.videoElm.muted;
-            console.log("re");
-        }
-        if ((e.keyCode || e.which) === 32) {
-            /*
-                            if (videoElm.paused) videoElm.play();
-                            else videoElm.pause();
-                            return false;*/
-        }
-        if ((e.keyCode || e.which) === 46) {
-            this.stepForward();
-        }
-        if ((e.keyCode || e.which) === 44) {
-            this.stepBackward();
-        }
     }
 
 
@@ -314,7 +295,7 @@ export class VideoViewer {
         clearTimeout(this.fwdIndTimer);
         this.fwdIndTimer = setTimeout(() => this.fwdInd.css({opacity: 0}), 200);
         this.videoElm.pause();
-        this.curFrame = this.curFrame + this.getFrameSkip();
+        this.curFrame ++;
     }
 
     private stepBackward(): void {
@@ -322,16 +303,16 @@ export class VideoViewer {
         clearTimeout(this.bkIndTimer);
         this.bkIndTimer = setTimeout(() => this.bkdInd.css({opacity: 0}), 200);
         this.videoElm.pause();
-        this.curFrame = this.curFrame - this.getFrameSkip();
+        this.curFrame--;
     }
 
     private toTime(frame: number): number {
-        return frame / this.meta.fps;
+        return frame / this.viewingFps;
     }
 
     //finds the nearest frame to a time
     private toFrame(t: number): number {
-        return Math.round(t * this.meta.fps);
+        return Math.round(t * this.viewingFps);
     }
 
     private get curFrame(): number {
@@ -346,13 +327,28 @@ export class VideoViewer {
         return this.videoElm.currentTime;
     }
 
+    private onFpsSelected() {
+        this.viewingFps=Number.parseFloat(this.fpsSelect.val() as string);
+    }
+
+    private _viewingFps:number;
+
+    private get viewingFps():number{
+        return this._viewingFps;
+    }
+
+    private set viewingFps(fps:number){
+        this._viewingFps=fps;
+        this.updateBookmarkList();
+        this.onFrameChange();
+    }
 
     private onHashChange() {
-        const res=Number.parseFloat(window.location.hash.slice(1));
-        if(Number.isNaN(res)){
-            this.videoElm.currentTime=0;
-        }else{
-            this.videoElm.currentTime=res;
+        const res = Number.parseFloat(window.location.hash.slice(1));
+        if (Number.isNaN(res)) {
+            this.videoElm.currentTime = 0;
+        } else {
+            this.videoElm.currentTime = res;
         }
     }
 
@@ -367,12 +363,6 @@ export class VideoViewer {
 
     public setPlaybackSpeed(speed: number) {
         this.videoElm.playbackRate = speed;
-    }
-
-    private getFrameSkip(): number {
-        let re = 1;
-        if (this.press2) re = 2;
-        if (this.press3) re = 3;
-        return re;
+        this.spdInd.text(speed);
     }
 }
