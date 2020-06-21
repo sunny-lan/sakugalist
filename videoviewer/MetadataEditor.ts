@@ -14,7 +14,7 @@ interface MetadataSaveHandler {
 }
 
 const html = `
-<div class="metadata-editor">
+<div class="metadataEditor">
     Description: <input class="description">
     Animator: <input class="animator">
     Tags: <input class="tags">

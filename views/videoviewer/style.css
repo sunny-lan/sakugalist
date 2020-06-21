@@ -1,4 +1,10 @@
 /*VideoViewer*/
+.videoViewer{
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
 
 .videoViewer .fwd {
     opacity: 0;
@@ -15,6 +21,7 @@
 .videoViewer .vidRow {
     display: flex;
     flex-direction: row;
+    flex-grow: 1;
 }
 
 .videoViewer video {
@@ -22,11 +29,20 @@
     max-height: 90vh;
     min-width: 400px;
     object-position: top;
+    object-fit: contain;
+    flex-grow: 1;
 }
 
 .videoViewer .infoCol{
     flex-direction:column;
     display:flex;
+    flex-grow: 0;
+    max-width: 300px;
+}
+
+/*MetdataEditor*/
+
+.videoViewer .metadataEditor{
     flex-grow: 0;
 }
 
@@ -47,17 +63,22 @@
     text-overflow: ellipsis;
     color:blue;
     text-decoration: underline;
+    max-width: 300px;
 }
 
 
 body {
     width:100%;
+    height:100%;
     box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
     margin: 0;
     padding: 0;
     max-height: 100vh;
     max-width: 100vw;
     overflow: hidden;
+}
+
+html{
+    width:100%;
+    height:100%;
 }

@@ -12,7 +12,6 @@ import {
     VideoList,
     VideoMetadata,
     VideoMetadataSearchableKeys,
-    VideoSource
 } from "./Video";
 
 interface BookmarkSearchable {
@@ -89,7 +88,7 @@ export class FuseSearchService implements VideoSearchService {
             this.videoList.push({
                 videoMetadata:video.videoMetadata,
                 videoUrl:video.videoUrl,
-                fps:video.videoMetadata.fps.toString(),
+                fps:video.videoMetadata.fps && video.videoMetadata.fps.toString(),
             });
 
             //invert list for bookmark search

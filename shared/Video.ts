@@ -1,5 +1,6 @@
 export interface Bookmark {
     time: number;
+    endTime?:number;
     tags: string;
     comment: string;
     animator?:string;
