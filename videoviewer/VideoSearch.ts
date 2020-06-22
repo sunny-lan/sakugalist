@@ -2,14 +2,15 @@ import {JQE} from "./util";
 import {VideoSearchService} from "../shared/VideoSearchService";
 import {FuseSearchService} from "../shared/FuseSearchService";
 import {VideoList} from "../shared/Video";
+import {BookmarkLink} from "./BookmarkLink";
 
 const html = `
 <div class="videoSearch">
     Search: <input class="searchBar">
-    <ul class="searchResults"></ul>
     Directly open url/file:
     <input class="directFile">
     <button class="directFileOpen">Open</button>
+    <ul class="searchResults"></ul>
 </div>
 `;
 
@@ -46,12 +47,13 @@ export class VideoSearch {
         const query = this.searchBar.val() as string;
         this.searchResults.empty();
         const videos = this.searcher.searchVideos({query}, true);
-
+        const searchResults: { [videoUrl: string]: JQE } = {};
         for (const video of videos) {
             const searchResult = $(videoSearchResultHtml);
             const videoLink = searchResult.find('.videoLink');
             videoLink.attr('href', `./videoviewer.html?videoUrl=${video.videoUrl}`);
 
+            //TODO replace with util function
             const meta = video.videoMetadata;
             videoLink.text(meta.description || '');
             if (meta.animator)
@@ -64,9 +66,18 @@ export class VideoSearch {
             }
 
             this.searchResults.append(searchResult);
+            searchResults[video.videoUrl] = searchResult;
         }
 
+        const bookmarks = this.searcher.searchBookmarks({query}, true);
 
+        for (const bk of bookmarks) {
+            //TODO show frame number instead of time
+            const link = new BookmarkLink(bk.parentVideoUrl, bk.bookmark);
+            const listItem = $('<li></li>');
+            listItem.append(link.ui);
+            searchResults[bk.parentVideoUrl].find('.bookmarks').append(listItem);
+        }
     }
 
     public setVideoList(list: VideoList) {

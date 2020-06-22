@@ -57,15 +57,25 @@
 }
 
 
-/*BookmarkLink*/
+/*BookmarkList*/
 
-.bookmarkLink {
-    text-overflow: ellipsis;
-    color:blue;
-    text-decoration: underline;
+.bookmarkList{
     max-width: 300px;
 }
 
+.bookmarkList .bookmarkLink {
+    text-overflow: ellipsis;
+}
+
+/*VideoSearch*/
+.videoSearchResult .videoLink{
+    font-weight: bold;
+}
+
+.videoSearchResult a{
+    text-decoration: none;
+    color: darkslategray;
+}
 
 body {
     width:100%;
@@ -80,5 +90,6 @@ body {
 
 html{
     width:100%;
+    font-family: Calibri;
     height:100%;
 }
