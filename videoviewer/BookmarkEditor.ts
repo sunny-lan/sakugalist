@@ -9,18 +9,21 @@ interface BookmarkUpdate {
     tags: string;
     comment: string;
     animator?: string;
+    includeInRandomize?:boolean;
 }
 
 const html = `
 <div class="bookmarkEditor">
     <button class="toggle">loading...</button>
     Comment
-    <textarea class="comment textInput"></textarea>
+    <textarea class="comment textInput inputField"></textarea>
     Tags
-    <input class="tags textInput">
+    <input class="tags textInput inputField">
     Animator
-    <input class="animator textInput">
-    <button class="clearText textInput">Clear</button>
+    <input class="animator textInput inputField">
+    <input class="includeInRandomize inputField" type="checkbox" value="Include in randomize">
+    
+    <button class="clearText textInput inputField">Clear</button>
 </div>
 `;
 
@@ -33,6 +36,7 @@ export class BookmarkEditor {
     private selected?: Bookmark;
     private toggle: JQE;
     private animator: JQE;
+    private includeInRandomize: JQE;
 
     constructor(onAdd: AddHandler, onRemove: RemoveHandler) {
         this.ui = $(html);
@@ -40,6 +44,7 @@ export class BookmarkEditor {
         this.animator = this.ui.find('.animator');
         this.comment = this.ui.find('.comment');
         this.toggle = this.ui.find('.toggle');
+        this.includeInRandomize=this.ui.find('.includeInRandomize');
         this.toggle.click(() => this.handleToggle());
         this.ui.find('.clearText').click(() => this.clearText());
 
@@ -63,6 +68,7 @@ export class BookmarkEditor {
                 tags: this.tags.val() as string,
                 comment: this.comment.val() as string,
                 animator: this.animator.val() as string,
+                includeInRandomize: this.includeInRandomize.prop('checked')
             });
         }
     }
@@ -73,12 +79,14 @@ export class BookmarkEditor {
         this.comment.val(bk.comment);
 
 
-        this.ui.find('.textInput').prop('disabled', true);
+        this.ui.find('.inputField').prop('disabled', true);
         this.toggle.text(`unbookmark`);
     }
 
     public clearText(): void {
         this.ui.find('.textInput').val('');
+
+        this.ui.find('.includeInRandomize').prop('checked', false);
     }
 
     public clear(keepOldData: boolean): void {
@@ -87,7 +95,7 @@ export class BookmarkEditor {
             this.clearText();
         }
 
-        this.ui.find('.textInput').prop('disabled', false);
+        this.ui.find('.inputField').prop('disabled', false);
         this.toggle.text('bookmark');
     }
 

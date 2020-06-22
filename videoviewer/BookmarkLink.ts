@@ -21,6 +21,8 @@ export class BookmarkLink {
         this.url=`./videoviewer.html?videoUrl=${videoUrl}#${bookmark.time}`;
         this.ui = $(`<a class="bookmarkLink" href="${this.url}"></a>`)
             .text(`${time} - ${bookmark.comment}`);
+        if(bookmark.tags)
+            this.ui.append(`| ${bookmark.tags}`);
     }
 
     public go(){

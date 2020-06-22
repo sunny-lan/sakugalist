@@ -208,7 +208,8 @@ export class VideoViewer {
             }
         }
         // if bookmark is not within 1 frame, exit
-        if (bestVal > 1 / this.meta.fps) {
+        //TODO better bookmark identifier
+        if (bestVal > 1 / (this.meta.fps || this.viewingFps)) {
             return undefined;
         }
         return best;
@@ -349,7 +350,7 @@ export class VideoViewer {
     }
 
     private seekTime(time: number): void {
-        history.replaceState(null, null, '#' + time);
+        history.replaceState(null, '', '#' + time);
         this.videoElm.currentTime=time;
     }
 

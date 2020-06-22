@@ -28,7 +28,8 @@ export class VideoSearch {
     private searchBar: JQE;
     private searcher: VideoSearchService;
     private searchResults: JQE;
-    private currentBookmarks: BookmarkLink[];
+    private randomizableBookmarks: BookmarkLink[];
+    private randomizeUi: JQE;
 
     constructor() {
         this.ui = $(html);
@@ -45,11 +46,12 @@ export class VideoSearch {
             window.location.href = `./videoviewer.html?videoUrl=${encodeURIComponent(directFile.val() as string)}`;
         });
 
-        this.ui.find('.randomize').click(()=>this.randomize());
+        this.randomizeUi= this.ui.find('.randomize');
+        this.randomizeUi.click(()=>this.randomize());
     }
 
     private randomize(){
-        const bk=this.currentBookmarks[randomInt(0, this.currentBookmarks.length)];
+        const bk=this.randomizableBookmarks[randomInt(0, this.randomizableBookmarks.length)];
         bk.go();
     }
 
@@ -67,12 +69,15 @@ export class VideoSearch {
             const meta = video.videoMetadata;
             videoLink.text(meta.description || '');
             if (meta.animator)
-                videoLink.append(` | animator:${meta.animator}`);
+                videoLink.append(` | ${meta.animator}`);
             if (meta.show) {
-                videoLink.append(` | source:${meta.show}`);
-                if (meta.episode) {
-                    videoLink.append(` episode:${meta.episode}`)
-                }
+                videoLink.append(` | ${meta.show}`);
+            }
+            if (meta.episode) {
+                videoLink.append(` ep${meta.episode}`)
+            }
+            if(meta.tags){
+                videoLink.append(`| ${meta.tags}`);
             }
 
             this.searchResults.append(searchResult);
@@ -80,15 +85,19 @@ export class VideoSearch {
         }
 
         const bookmarks = this.searcher.searchBookmarks({query}, true);
-        this.currentBookmarks=[];
+        this.randomizableBookmarks=[];
         for (const bk of bookmarks) {
             //TODO show frame number instead of time
             const link = new BookmarkLink(bk.parentVideoUrl, bk.bookmark);
-            this.currentBookmarks.push(link);
             const listItem = $('<li></li>');
             listItem.append(link.ui);
             searchResults[bk.parentVideoUrl].find('.bookmarks').append(listItem);
+
+            if(bk.bookmark.includeInRandomize===undefined || bk.bookmark.includeInRandomize)
+                this.randomizableBookmarks.push(link);
         }
+
+        this.randomizeUi.prop('disabled', this.randomizableBookmarks.length===0);
     }
 
     public setVideoList(list: VideoList) {

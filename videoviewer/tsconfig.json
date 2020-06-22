@@ -5,6 +5,8 @@
     "sourceMap": true,
     "outFile": "../views/videoviewer/bundle.js",
     "lib": ["es6", "dom"],
+    "alwaysStrict": true,
+    "strictNullChecks": true,
     "baseUrl": "..",//project root
     "paths": {
       "*": [

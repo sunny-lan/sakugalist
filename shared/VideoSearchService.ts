@@ -20,7 +20,17 @@ export interface BookmarkSearchResult {
 export interface VideoSearchService {
     setVideos(list:VideoList);
 
+    /**
+     * should return whole list of videos, sorted by animator if query is empty
+     * @param query
+     * @param includeBookmarksInSearch
+     */
     searchVideos(query:SearchQuery, includeBookmarksInSearch:boolean):VideoSearchResult[];
 
+    /**
+     * should return TODO empty or whole list of bookmarks if query empty
+     * @param query
+     * @param includeVideoMetaInSearch
+     */
     searchBookmarks(query:SearchQuery, includeVideoMetaInSearch:boolean):BookmarkSearchResult[];
 }

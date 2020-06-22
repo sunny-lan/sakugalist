@@ -17,16 +17,17 @@ export class VideoViewerController {
 
     public static parseInitDataFromURL(): ServerHookInitData {
         const urlParams = new URLSearchParams(window.location.search);
+        const url=urlParams.get("videoUrl");
+        if(!url)
+            throw new Error('Video url must be provided');
         return {
-            videoUrl: urlParams.get("videoUrl"),
+            videoUrl: url,
         };
     }
 
     constructor(initData?: ServerHookInitData) {
         this.metaSources = [new LocalStorage()];
         if (!initData) initData = VideoViewerController.parseInitDataFromURL();
-        if (!initData.videoUrl)
-            throw new Error('Video url must be provided');
         this.videoURL = initData.videoUrl;
 
         $(() => this.onPageLoad());

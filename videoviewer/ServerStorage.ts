@@ -30,7 +30,7 @@ export class ServerStorage implements StorageProvider {
         throw new Error('ServerStorage.getAllVideos() not implemented yet');
     }
 
-    public async getMetadata(videoURL: string): Promise<VideoMetadata> {
+    public async getMetadata(videoURL: string): Promise<VideoMetadata|undefined> {
         try {
             return await ServerStorage.serverApi_GetMetadata({videoURL});
         } catch (e) {
@@ -39,7 +39,7 @@ export class ServerStorage implements StorageProvider {
                 throw e;
             }
             console.error('unable to contact server:', e);
-            return null;
+            return undefined;
         }
     }
 
@@ -56,7 +56,7 @@ export class ServerStorage implements StorageProvider {
 
             this.errorShown = true;
             console.error('error trying to to contact server:', e);
-            return null;
+            return;
         }
     }
 }

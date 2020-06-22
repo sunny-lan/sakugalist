@@ -4,6 +4,7 @@ export interface Bookmark {
     tags: string;
     comment: string;
     animator?:string;
+    includeInRandomize?:boolean;//NOTE: if undefined, assumed to be true
 }
 
 export const BookmarkSearchableKeys: string[] = ['tags', 'comment'];

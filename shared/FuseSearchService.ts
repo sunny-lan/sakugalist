@@ -29,7 +29,7 @@ const bookmarkKeys = [
 interface VideoSearchable {
     videoUrl: string;
     videoMetadata: VideoMetadata;
-    fps:string;
+    fps?:string;
 }
 
 const videoKeys = [
@@ -88,7 +88,7 @@ export class FuseSearchService implements VideoSearchService {
             this.videoList.push({
                 videoMetadata:video.videoMetadata,
                 videoUrl:video.videoUrl,
-                fps:video.videoMetadata.fps && video.videoMetadata.fps.toString(),
+                fps: video.videoMetadata.fps ? video.videoMetadata.fps.toString():undefined,
             });
 
             //invert list for bookmark search

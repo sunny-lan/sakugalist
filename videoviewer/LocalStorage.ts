@@ -13,7 +13,7 @@ export class LocalStorage implements StorageProvider{
         return videoList;
     }
 
-    public async getMetadata(videoURL: string): Promise<VideoMetadata> {
+    public async getMetadata(videoURL: string): Promise<VideoMetadata|undefined> {
         const item = localStorage.getItem(videoURL);
         if (!item) return undefined;
         return JSON.parse(item) as VideoMetadata;
