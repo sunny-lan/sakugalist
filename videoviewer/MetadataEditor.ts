@@ -21,7 +21,6 @@ const html = `
     FPS: <input class="fps">
     Show: <input class="show">
     Episode: <input class="episode">
-    <button class="save">save</button>
 </div>
 `;
 
@@ -38,8 +37,7 @@ export class MetadataEditor {
     constructor() {
         const ui=this.ui = $(html);
 
-        const saveBtn: JQE = ui.find('.save');
-        saveBtn.click(() => this.onSaveClicked());
+        this.ui.find('*').change(()=>this.saveData());
 
         this.animator = ui.find('.animator');
         this.tags = ui.find('.tags');
@@ -51,7 +49,7 @@ export class MetadataEditor {
         this.disabled(true);
     }
 
-    private onSaveClicked() {
+    private saveData() {
         if(this.handler){
             this.handler({
                 description: this.description.val() as string,
@@ -62,6 +60,8 @@ export class MetadataEditor {
                 show: this.show.val() as string,
                 episode: this.episode.val() as string,
             });
+        }else{
+            throw new Error('this should never happen');
         }
     }
 

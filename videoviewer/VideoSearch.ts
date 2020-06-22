@@ -65,6 +65,8 @@ export class VideoSearch {
 
             this.searchResults.append(searchResult);
         }
+
+
     }
 
     public setVideoList(list: VideoList) {
