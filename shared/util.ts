@@ -18,3 +18,10 @@ export function formatTime(time:number, fps?:number):string {
 export function videoMetadataToString(videoUrl?:string, videoMetadata?:VideoMetadata) {
     //TODO not implemented
 }
+
+/**
+ * Returns random integer in range [min, max)
+ */
+export function randomInt(min:number, max:number) {
+    return Math.floor(Math.random() * (max - min) ) + min;
+}

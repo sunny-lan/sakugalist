@@ -1,8 +1,9 @@
 import {JQE} from "./util";
-import {VideoSearchService} from "../shared/VideoSearchService";
+import {BookmarkSearchResult, VideoSearchService} from "../shared/VideoSearchService";
 import {FuseSearchService} from "../shared/FuseSearchService";
 import {VideoList} from "../shared/Video";
 import {BookmarkLink} from "./BookmarkLink";
+import {randomInt} from "../shared/util";
 
 const html = `
 <div class="videoSearch">
@@ -10,6 +11,7 @@ const html = `
     Directly open url/file:
     <input class="directFile">
     <button class="directFileOpen">Open</button>
+    <button class="randomize">Randomize</button>
     <ul class="searchResults"></ul>
 </div>
 `;
@@ -26,6 +28,7 @@ export class VideoSearch {
     private searchBar: JQE;
     private searcher: VideoSearchService;
     private searchResults: JQE;
+    private currentBookmarks: BookmarkLink[];
 
     constructor() {
         this.ui = $(html);
@@ -41,6 +44,13 @@ export class VideoSearch {
         this.ui.find('.directFileOpen').click(() => {
             window.location.href = `./videoviewer.html?videoUrl=${encodeURIComponent(directFile.val() as string)}`;
         });
+
+        this.ui.find('.randomize').click(()=>this.randomize());
+    }
+
+    private randomize(){
+        const bk=this.currentBookmarks[randomInt(0, this.currentBookmarks.length)];
+        bk.go();
     }
 
     private doSearch() {
@@ -70,10 +80,11 @@ export class VideoSearch {
         }
 
         const bookmarks = this.searcher.searchBookmarks({query}, true);
-
+        this.currentBookmarks=[];
         for (const bk of bookmarks) {
             //TODO show frame number instead of time
             const link = new BookmarkLink(bk.parentVideoUrl, bk.bookmark);
+            this.currentBookmarks.push(link);
             const listItem = $('<li></li>');
             listItem.append(link.ui);
             searchResults[bk.parentVideoUrl].find('.bookmarks').append(listItem);

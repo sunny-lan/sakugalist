@@ -7,6 +7,7 @@ import {formatTime} from "../shared/util";
  */
 export class BookmarkLink {
     public readonly ui: JQE;
+    private readonly url:string;
 
     /**
      * Will display the time
@@ -17,8 +18,12 @@ export class BookmarkLink {
     constructor(videoUrl:string,bookmark: Bookmark, overrideTime?: string) {
         const time = overrideTime || formatTime(bookmark.time);
         //TODO make separate navigation system
-        const vidLink=`./videoviewer.html?videoUrl=${videoUrl}#${bookmark.time}`;
-        this.ui = $(`<a class="bookmarkLink" href="${vidLink}"></a>`)
+        this.url=`./videoviewer.html?videoUrl=${videoUrl}#${bookmark.time}`;
+        this.ui = $(`<a class="bookmarkLink" href="${this.url}"></a>`)
             .text(`${time} - ${bookmark.comment}`);
+    }
+
+    public go(){
+        window.location.href=this.url;
     }
 }
