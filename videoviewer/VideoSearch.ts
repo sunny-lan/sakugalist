@@ -7,11 +7,13 @@ import {randomInt} from "../shared/util";
 
 const html = `
 <div class="videoSearch">
-    Search: <input class="searchBar">
+    <div class="searchBar">
+    Search: <input class="searchQuery">
     Directly open url/file:
     <input class="directFile">
     <button class="directFileOpen">Open</button>
     <button class="randomize">Randomize</button>
+    </div>
     <ul class="searchResults"></ul>
 </div>
 `;
@@ -25,7 +27,7 @@ const videoSearchResultHtml = `
 
 export class VideoSearch {
     public readonly ui: JQE;
-    private searchBar: JQE;
+    private searchQuery: JQE;
     private searcher: VideoSearchService;
     private searchResults: JQE;
     private randomizableBookmarks: BookmarkLink[];
@@ -34,12 +36,12 @@ export class VideoSearch {
     constructor() {
         this.ui = $(html);
 
-        this.searchBar = this.ui.find('.searchBar');
+        this.searchQuery = this.ui.find('.searchQuery');
         this.searchResults = this.ui.find('.searchResults');
 
         this.searcher = new FuseSearchService();
 
-        this.searchBar.on('input', () => this.doSearch());
+        this.searchQuery.on('input', () => this.doSearch());
 
         const directFile = this.ui.find('.directFile');
         this.ui.find('.directFileOpen').click(() => {
@@ -56,7 +58,7 @@ export class VideoSearch {
     }
 
     private doSearch() {
-        const query = this.searchBar.val() as string;
+        const query = this.searchQuery.val() as string;
         this.searchResults.empty();
         const videos = this.searcher.searchVideos({query}, true);
         const searchResults: { [videoUrl: string]: JQE } = {};
